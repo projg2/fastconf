@@ -527,6 +527,7 @@ _EOF_
 # Should return true; otherwise configure will be aborted.
 if ! conf_init; then
 	echo 'FATAL ERROR: conf_init() failed.' >&2
+	exit 2
 fi
 
 _fc_cmdline_unset
