@@ -240,7 +240,7 @@ _fc_cmdline_default() {
 	: ${LIBDIR=\$(EXEC_PREFIX)/lib}
 	: ${INCLUDEDIR=\$(PREFIX)/include}
 	: ${DATAROOTDIR=\$(PREFIX)/share}
-	: ${DATADIR=\$(DATADIR)}
+	: ${DATADIR=\$(DATAROOTDIR)}
 	: ${LOCALEDIR=\$(DATAROOTDIR)/locale}
 	: ${MANDIR=\$(DATAROOTDIR)/man}
 	: ${DOCDIR=\$(DATAROOTDIR)/doc/${PACKAGE}}
