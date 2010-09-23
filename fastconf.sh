@@ -522,9 +522,12 @@ _EOF_
 # INITIALIZATION RULES
 
 # Callback: conf_init
-# Obligatory. Called after loading fastconf but before any processing begins.
-# Additional modules should be loaded here, using fc_inherit().
-conf_init
+# Obligatory. Called after loading fastconf but before any processing
+# begins. Additional modules should be loaded here, using fc_inherit().
+# Should return true; otherwise configure will be aborted.
+if ! conf_init; then
+	echo 'FATAL ERROR: conf_init() failed.' >&2
+fi
 
 _fc_cmdline_unset
 _fc_cmdline_parse "${@}"
