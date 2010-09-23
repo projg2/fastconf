@@ -32,11 +32,9 @@ else
 	PACKAGE=${PN}-${PV}
 fi
 
-# You can use FC_CONFIG_H to override the default config header file
-# name.
-: ${FC_CONFIG_H:=config.h}
-
-# The file to be appended to the Makefile. None if unset.
+# Set in order to enable configure phase.
+: ${FC_CONFIG_H}
+# Set in order to enable Makefile.in appending.
 : ${FC_MAKEFILE_IN}
 
 : ${FC_INSTALL_UMASK:=a+rx}
@@ -481,15 +479,20 @@ MANDIR = ${MANDIR}
 DOCDIR = ${DOCDIR}
 HTMLDIR = ${HTMLDIR}
 
-default: ${FC_CONFIG_H}
+default: ${FC_CONFIG_H-all}
+_EOF_
+
+	if [ -n "${FC_CONFIG_H+1}" ]; then
+		cat >> "${1}" <<_EOF_
 	@+if [ -n "\$(FC_EXPORTED)" ]; then \$(MAKE) all; else ./configure --build=all; fi
 	@+\$(MAKE) confclean
-
 _EOF_
+	fi
 
 	conf_get_targets >> "${1}"
 
-	cat - ${2} >> "${1}" <<_EOF_
+	if [ -n "${FC_CONFIG_H+1}" ]; then
+		cat >> "${1}" <<_EOF_
 
 config:
 	@rm -f ${FC_CONFIG_H}
@@ -506,16 +509,21 @@ ${FC_CONFIG_H}:
 confclean:
 	@rm -f ${FC_TESTLIST} ${FC_TESTLIST_SOURCES}
 
+.PHONY: config confclean
+_EOF_
+	fi
+
+	cat - ${2} >> "${1}" <<_EOF_
+
 clean:
-	rm -f ${FC_OUTPUTLIST}
+${FC_OUTPUTLIST+	rm -f ${FC_OUTPUTLIST}}
 $(_fc_setup_subdir_rules clean)
 
-distclean: clean confclean
+distclean: clean ${FC_CONFIG_H+confclean}
 	rm -f Makefile ${FC_CONFIG_H}
 $(_fc_setup_subdir_rules distclean)
 
-.PHONY: all clean config confclean default distclean \
-	${FC_TARGETLIST} ${FC_INSTALL+install}
+.PHONY: all clean default distclean ${FC_INSTALL+install} ${FC_TARGETLIST} 
 
 all: ${FC_INSTALL_PREREQS}
 $(_fc_setup_subdir_rules all)
