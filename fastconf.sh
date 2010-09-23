@@ -365,6 +365,16 @@ fc_install_chmod() {
 	cd \"\$(DESTDIR)${dest}\" && chmod ${mode} ${@}"
 }
 
+# Synopsis: fc_install_as_chmod <mode> <dest> <src> <newname>
+fc_install_as_chmod() {
+	_fc_install_dir "${2}"
+	FC_INSTALL="${FC_INSTALL}
+	cp \"${3}\" \"\$(DESTDIR)${2}/${4}\"
+	cd \"\$(DESTDIR)${2}\" && chmod ${1} \"${4}\""
+
+	FC_INSTALL_PREREQS=${FC_INSTALL_PREREQS+${FC_INSTALL_PREREQS} }${3}
+}
+
 # Synopsis: fc_install <dest> <files>
 # Setup installing <files> into <dest>, creating parent directories if
 # necessary and making them world-readable afterwards.
@@ -377,6 +387,16 @@ fc_install() {
 # necessary and making them world-executable afterwards.
 fc_install_exe() {
 	fc_install_chmod ${FC_INSTALL_CHMOD_EXE} "${@}"
+}
+
+# Synopsis: fc_install_as <dest> <src> <newname>
+fc_install_as() {
+	fc_install_as_chmod ${FC_INSTALL_CHMOD} "${@}"
+}
+
+# Synopsis: fc_install_exe_as <dest> <src> <newname>
+fc_install_exe_as() {
+	fc_install_as_chmod ${FC_INSTALL_CHMOD_EXE} "${@}"
 }
 
 # Synopsis: _fc_build [<target>]
