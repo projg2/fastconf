@@ -117,6 +117,8 @@ Options:
 				(default: \${DATAROOTDIR}/locale)
 	--mandir=DIR		Path to install manpages
 				(default: \${DATAROOTDIR}/man)
+	--infodir=DIR		Path to install GNU info docs
+				(default: \${DATAROOTDIR}/info)
 	--docdir=DIR		Path to install documentation (\${DOCDIR},
 				 default: \${DATAROOTDIR}/doc/\${PACKAGE})
 	--htmldir=DIR		Path to install HTML docs
@@ -194,6 +196,9 @@ _fc_cmdline_parse() {
 			--mandir=*)
 				MANDIR=${1#--mandir=}
 				;;
+			--infodir=*)
+				INFODIR=${1#--infodir=}
+				;;
 			--docdir=*)
 				DOCDIR=${1#--docdir=}
 				;;
@@ -243,6 +248,7 @@ _fc_cmdline_default() {
 	: ${DATADIR=\$(DATAROOTDIR)}
 	: ${LOCALEDIR=\$(DATAROOTDIR)/locale}
 	: ${MANDIR=\$(DATAROOTDIR)/man}
+	: ${INFODIR=\$(DATAROOTDIR)/info}
 	: ${DOCDIR=\$(DATAROOTDIR)/doc/${PACKAGE}}
 	: ${HTMLDIR=\$(DOCDIR)}
 }
