@@ -120,8 +120,8 @@ _fc_cmdline_parse() {
 				_fc_create_config "${1#--create-config=}"
 				exit 0
 				;;
-			--build=*)
-				_fc_build "${1#--build=}"
+			--make=*)
+				_fc_build "${1#--make=}"
 				exit ${?}
 				;;
 			--prefix=*)
@@ -296,7 +296,7 @@ fc_check() {
 # macros for config.h file (using fc_def).
 
 # Callback: conf_get_exports
-# Called by './configure --create-config' and './configure --build'.
+# Called by './configure --create-config' and './configure --make'.
 # Should check the configure results and export necessary macros for
 # make (using fc_export).
 
@@ -484,7 +484,7 @@ _EOF_
 
 	if [ -n "${FC_CONFIG_H+1}" ]; then
 		cat >> "${1}" <<_EOF_
-	@+if [ -n "\$(FC_EXPORTED)" ]; then \$(MAKE) all; else ./configure --build=all; fi
+	@+if [ -n "\$(FC_EXPORTED)" ]; then \$(MAKE) all; else ./configure --make=all; fi
 	@+\$(MAKE) confclean
 _EOF_
 	fi
