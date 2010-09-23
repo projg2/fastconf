@@ -51,7 +51,8 @@ _fc_cmdline_unset() {
 		BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
 		LOCALSTATEDIR \
 		LIBDIR INCLUDEDIR DATAROOTDIR DATADIR \
-		LOCALEDIR MANDIR DOCDIR HTMLDIR
+		LOCALEDIR MANDIR DOCDIR HTMLDIR \
+		CBUILD CHOST CTARGET
 }
 
 # Callback: conf_help
@@ -72,6 +73,10 @@ Options:
 				(\${PREFIX}, default: /usr/local)
 	--exec-prefix=DIR	Prefix used to install arch-dependent files
 				(\${EXEC_PREFIX}, default: \${PREFIX})
+
+	--build=PLATFORM
+	--host=PLATFORM
+	--target=PLATFORM
 
 	--bindir=DIR		Path to install user binaries
 				(default: \${EXEC_PREFIX}/bin)
@@ -123,6 +128,15 @@ _fc_cmdline_parse() {
 			--make=*)
 				_fc_build "${1#--make=}"
 				exit ${?}
+				;;
+			--build=*)
+				CBUILD=${1#--build=}
+				;;
+			--host=*)
+				CHOST=${1#--host=}
+				;;
+			--target=*)
+				CTARGET=${1#--target=}
 				;;
 			--prefix=*)
 				PREFIX=${1#--prefix=}
@@ -194,6 +208,10 @@ _fc_cmdline_parse() {
 # Synopsis: _fc_cmdline_default
 # Set default paths for directories not matched by _fc_cmdline_parse().
 _fc_cmdline_default() {
+	: ${CBUILD=}
+	: ${CHOST=${CBUILD}}
+	: ${CTARGET=${CHOST}}
+
 	: ${PREFIX=/usr/local}
 	: ${EXEC_PREFIX=\$(PREFIX)}
 
