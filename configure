@@ -7,6 +7,10 @@ conf_init() {
 	fc_inherit patch
 }
 
+conf_arg_parse() {
+	false
+}
+
 conf_get_targets() {
 	fc_export MODULEDIR '$(DATADIR)'/${PN}
 
