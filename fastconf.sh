@@ -341,7 +341,7 @@ _fc_install_dir() {
 
 # Synopsis: fc_install_chmod <mode> <dest> <files>
 fc_install_chmod() {
-	local dest mode
+	local dest mode i
 	mode=${1}
 	dest=${2}
 	shift
@@ -349,10 +349,20 @@ fc_install_chmod() {
 
 	_fc_install_dir "${dest}"
 	FC_INSTALL="${FC_INSTALL}
-	cp ${@} \"\$(DESTDIR)${dest}\"
-	cd \"\$(DESTDIR)${dest}\" && chmod ${mode} ${@}"
+	cp ${@} \"\$(DESTDIR)${dest}\""
 
 	FC_INSTALL_PREREQS=${FC_INSTALL_PREREQS+${FC_INSTALL_PREREQS} }${@}
+
+	# Transform the array to contain basenames
+	i=${#}
+	while [ ${i} -gt 0 ]; do
+		set -- "${@}" "$(basename "${1}")"
+		shift
+		: $(( i -= 1 ))
+	done
+
+	FC_INSTALL="${FC_INSTALL}
+	cd \"\$(DESTDIR)${dest}\" && chmod ${mode} ${@}"
 }
 
 # Synopsis: fc_install <dest> <files>
