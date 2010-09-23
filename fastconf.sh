@@ -52,7 +52,7 @@ fc_inherit() {
 		if [ -f "${FC_MODULE_PATH}/${fn}.sh" ]; then
 			. "${FC_MODULE_PATH}/${fn}.sh"
 		else
-			echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure."
+			echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
 			exit 2
 		fi
 	done
@@ -516,9 +516,9 @@ _EOF_
 # INITIALIZATION RULES
 
 # Callback: conf_init
-# Called after loading fastconf but before any processing begins.
+# Obligatory. Called after loading fastconf but before any processing begins.
 # Additional modules should be loaded here, using fc_inherit().
-conf_init >&2 2>/dev/null
+conf_init
 
 _fc_cmdline_unset
 _fc_cmdline_parse "${@}"
