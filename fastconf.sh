@@ -5,6 +5,8 @@
 # Released under the terms of the 3-clause BSD license.
 
 FC_MODULE_PATH=./modules
+FC_API=0
+FC_API_MIN=0
 
 # PART 0
 # basic use checks
@@ -38,6 +40,8 @@ fi
 : ${FC_CONFIG_H}
 # Set in order to enable Makefile.in appending.
 : ${FC_MAKEFILE_IN}
+# Set to the expected FC_API version.
+: ${FC_API_WANT}
 
 : ${FC_INSTALL_UMASK:=a+rx}
 : ${FC_INSTALL_CHMOD:=a+r}
@@ -56,6 +60,70 @@ fc_inherit() {
 			exit 2
 		fi
 	done
+}
+
+# Synopsis: fc_version_ge <a> <b>
+# Check whether version <a> is greater or equal than version <b>, and
+# return true or false appropriately. Both <a> and <b> have to be
+# simple version numbers, consisting of comma-separated integers.
+fc_version_ge() {
+	local ifs_save ret vera verb v
+	ifs_save=${IFS}
+	IFS=.
+	vera=${1}
+	ret=2
+
+	set -- ${2}
+	for v in ${vera}; do
+		if [ ${#} -eq 0 ]; then
+			# vera is longer, and previous components were equal
+			ret=0
+			break
+		elif [ ${v} -lt ${1} ]; then
+			# current component of vera is smaller
+			ret=1
+			break
+		elif [ ${v} -gt ${1} ]; then
+			# current component of vera is larger
+			ret=0
+			break
+		fi
+		shift
+	done
+
+	if [ ${ret} -eq 2 ]; then
+		if [ ${#} -gt 0 ]; then
+			# verb is longer, previous components were equal
+			ret=1
+		else
+			# vera = verb
+			ret=0
+		fi
+	fi
+	
+	IFS=${ifs_save}
+	return ${ret}
+}
+
+# Synopsis: _fc_api_checkver
+# Checks whether fastconf provides the requested version of API. Called
+# after conf_init() so you may adjust FC_API_WANT there based on FC_API
+# and FC_API_MIN if you want.
+_fc_api_checkver() {
+	if [ -z "${FC_API_WANT}" ]; then
+		echo "IMPORTANT: please set FC_API_WANT to the expected fastconf API version" >&2
+		echo "in your ./configure script (currently FC_API=${FC_API})." >&2
+	else
+		if ! fc_version_ge "${FC_API}" "${FC_API_WANT}"; then
+			echo "ERROR: fastconf doesn't provide API ${FC_API_WANT} requested by ./configure" >&2
+			echo "(current version: ${FC_API}). Please consider upgrading fastconf." >&2
+			exit 2
+		elif ! fc_version_ge "${FC_API_WANT}" "${FC_API_MIN}"; then
+			echo "ERROR: fastconf doesn't provide backwards compatibility to API ${FC_API_WANT}." >&2
+			echo "Please consider upgrading the ./configure script to at least API ${FC_API_MIN}." >&2
+			exit 2
+		fi
+	fi
 }
 
 # PART I
@@ -529,6 +597,7 @@ if ! conf_init; then
 	echo 'FATAL ERROR: conf_init() failed.' >&2
 	exit 2
 fi
+_fc_api_checkver
 
 _fc_cmdline_unset
 _fc_cmdline_parse "${@}"
