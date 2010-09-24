@@ -6,10 +6,7 @@ FC_API_WANT=0
 
 conf_init() {
 	fc_inherit patch
-}
-
-conf_arg_parse() {
-	false
+	fc_export_func conf_get_targets
 }
 
 conf_get_targets() {

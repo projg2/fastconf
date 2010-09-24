@@ -3,6 +3,10 @@
 # (c) 2010 Michał Górny
 # Released under the terms of the 3-clause BSD license.
 
+fc_mod_patch_init() {
+	true
+}
+
 # Synopsis: fc_sed <in> <out> <sed-command> [...]
 fc_sed() {
 	local in out ec

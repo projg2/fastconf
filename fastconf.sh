@@ -47,6 +47,61 @@ fi
 : ${FC_INSTALL_CHMOD:=a+r}
 : ${FC_INSTALL_CHMOD_EXE:=a+rx}
 
+unset FC_EXPORTED_FUNCTIONS
+
+# Synopsis: fc_export_func <func> [...]
+# Add the function <func> and the following functions to the exported
+# function list. The functions have to resemble the conf_* naming scheme
+# (for ./configure script) or fc_mod_* one (for modules).
+fc_export_func() {
+	FC_EXPORTED_FUNCTIONS=${FC_EXPORTED_FUNCTIONS+${FC_EXPORTED_FUNCTIONS} }${*}
+}
+
+# Synopsis: _fc_check_exports
+_fc_check_exports() {
+	local f sf found
+	# Obligatory exports:
+	set -- get_targets
+
+	while [ ${#} -gt 0 ]; do
+		found=1
+		for f in ${FC_EXPORTED_FUNCTIONS}; do
+			sf=${f%_${1}}
+			if [ ${sf} = conf -o ${sf#fc_mod_} != ${sf} ]; then
+				found=0
+				break
+			fi
+		done
+
+		if [ ${found} -eq 1 ]; then
+			echo "ERROR: Obligatory function ${1} not exported." >&2
+			echo "Did you forget 'fc_export_func conf_${1}? (assuming you did)" >&2
+			fc_export_func conf_get_targets
+		fi
+
+		shift
+	done
+}
+
+# Synopsis: _fc_call_exports <func> [<arg1>] [...]
+# Call all exported variants of <func> function (either conf_<func>
+# or fc_mod_*_<func>). Returns true if at least one call succeded.
+_fc_call_exports() {
+	local funcname f sf ret
+	funcname=${1}
+	ret=1
+	shift
+
+	for f in ${FC_EXPORTED_FUNCTIONS}; do
+		sf=${f%_${funcname}}
+		if [ ${sf} = conf -o ${sf#fc_mod_} != ${sf} ]; then
+			${f} "${@}" && ret=0
+		fi
+	done
+
+	return ${ret}
+}
+
 # Synopsis: fc_inherit <module> [...]
 # Inherit the functions from <module>.
 fc_inherit() {
@@ -55,6 +110,11 @@ fc_inherit() {
 	for fn in "${@}"; do
 		if [ -f "${FC_MODULE_PATH}/${fn}.sh" ]; then
 			. "${FC_MODULE_PATH}/${fn}.sh"
+
+			if ! fc_mod_${fn}_init; then
+				echo "FATAL ERROR: unable to initalize module ${fn}." >&2
+				exit 2
+			fi
 		else
 			echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
 			exit 2
@@ -194,7 +254,7 @@ Options:
 
 _EOF_
 
-	conf_help 2>/dev/null && echo
+	_fc_call_exports help && echo
 }
 
 # Callback: conf_arg_parse "${@}"
@@ -279,7 +339,7 @@ _fc_cmdline_parse() {
 				;;
 			*)
 				# XXX: support argument shifting in conf_arg_parse()
-				if ! conf_arg_parse "${@}"; then
+				if ! _fc_call_exports arg_parse "${@}"; then
 					# autoconf lists more than a single option here if applicable
 					# but it's easier for us to print them one-by-one
 					# and we keep the form to satisfy portage's QA checks
@@ -290,10 +350,6 @@ _fc_cmdline_parse() {
 		shift
 	done
 }
-
-# Callback: conf_cmdline_parsed
-# Mandatory. Called when command-line parsing is done. Should setup
-# local defaults and parse the results.
 
 # Synopsis: _fc_cmdline_default
 # Set default paths for directories not matched by _fc_cmdline_parse().
@@ -369,9 +425,9 @@ fc_check() {
 # them into <config-file>. Afterwards, call conf_get_exports() to get
 # the necessary make macros and append them to Makefile.
 _fc_create_config() {
-	conf_check_results > "${1}"
+	_fc_call_exports check_results > "${1}"
 	fc_export FC_EXPORTED 1 >> Makefile
-	conf_get_exports >> Makefile
+	_fc_call_exports get_exports >> Makefile
 }
 
 # PART III
@@ -481,7 +537,7 @@ _fc_build() {
 	ifs_save=${IFS}
 	IFS='
 '
-	set -- "${1}" $(conf_get_exports)
+	set -- "${1}" $(_fc_call_exports get_exports)
 	IFS=${ifs_save}
 
 	echo make "${@}" >&2
@@ -542,7 +598,7 @@ _EOF_
 _EOF_
 	fi
 
-	conf_get_targets >> "${1}"
+	_fc_call_exports get_targets >> "${1}"
 
 	if [ -n "${FC_CONFIG_H+1}" ]; then
 		cat >> "${1}" <<_EOF_
@@ -598,6 +654,7 @@ if ! conf_init; then
 	exit 2
 fi
 _fc_api_checkver
+_fc_check_exports
 
 _fc_cmdline_unset
 _fc_cmdline_parse "${@}"

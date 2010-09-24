@@ -3,6 +3,10 @@
 # (c) 2010 Michał Górny
 # Released under the terms of the 3-clause BSD license.
 
+fc_mod_cc_init() {
+	true
+}
+
 # Synopsis: _fc_mkrule_code <name> <includes> <code>
 # Output a Makefile rule creating a simple C program code using passed
 # <includes> and <code>. The program would take the form of:
