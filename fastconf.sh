@@ -49,11 +49,11 @@ fi
 
 unset FC_EXPORTED_FUNCTIONS
 
-# Synopsis: fc_export_func <func> [...]
+# Synopsis: fc_export_functions <func> [...]
 # Add the function <func> and the following functions to the exported
 # function list. The functions have to resemble the conf_* naming scheme
 # (for ./configure script) or fc_mod_* one (for modules).
-fc_export_func() {
+fc_export_functions() {
 	FC_EXPORTED_FUNCTIONS=${FC_EXPORTED_FUNCTIONS+${FC_EXPORTED_FUNCTIONS} }${*}
 }
 
@@ -75,8 +75,8 @@ _fc_check_exports() {
 
 		if [ ${found} -eq 1 ]; then
 			echo "ERROR: Obligatory function ${1} not exported." >&2
-			echo "Did you forget 'fc_export_func conf_${1}? (assuming you did)" >&2
-			fc_export_func conf_get_targets
+			echo "Did you forget 'fc_export_functions conf_${1}? (assuming you did)" >&2
+			fc_export_functions conf_get_targets
 		fi
 
 		shift
