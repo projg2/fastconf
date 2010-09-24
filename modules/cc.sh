@@ -4,6 +4,7 @@
 # Released under the terms of the 3-clause BSD license.
 
 fc_mod_cc_init() {
+	fc_inherit cc_common
 	fc_export_functions \
 		fc_mod_cc_cmdline_parsed \
 		fc_mod_cc_get_targets
@@ -13,6 +14,8 @@ fc_mod_cc_cmdline_parsed() {
 	# Sadly, we don't have any -cc prefixed with a host triplet.
 	# Thus, we have to look for -gcc too.
 	local ccnames cc
+
+	[ -n "${CC}" ] && return
 
 	if [ -z "${CC}" -a -n "${CHOST}" ]; then
 		if fc_have "${CHOST}"-gcc; then
@@ -35,14 +38,12 @@ fc_mod_cc_cmdline_parsed() {
 		fi
 	fi
 
-	echo "CC: ${CC}" >&2
+	echo "Using guessed C compiler: ${CC}" >&2
 }
 
 fc_mod_cc_get_targets() {
 	fc_export CC "${CC}"
 	fc_export CFLAGS "${CFLAGS}"
-	fc_export CPPFLAGS "${CPPFLAGS}"
-	fc_export LDFLAGS "${LDFLAGS}"
 }
 
 # Synopsis: _fc_mkrule_code <name> <includes> <code>
