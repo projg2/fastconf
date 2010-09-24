@@ -94,7 +94,7 @@ _fc_call_exports() {
 
 	for f in ${FC_EXPORTED_FUNCTIONS}; do
 		sf=${f%_${funcname}}
-		if [ ${sf} = conf -o ${sf#fc_mod_} != ${sf} ]; then
+		if [ ${sf} = conf -o \( ${sf#fc_mod_} != ${sf} -a ${sf} != ${f} \) ]; then
 			${f} "${@}" && ret=0
 		fi
 	done
