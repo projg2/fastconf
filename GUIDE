@@ -1,0 +1,118 @@
+fastconf -- the project creation guide
+======================================
+
+The configure script scheme
+---------------------------
+
+The central part of a fastconf project is the './configure' script. In
+the simplest case, it is supposed to be hand-written to resemble
+the scheme:
+
+	#!/bin/sh
+
+	# The package name
+	PN=foo
+	# The current package version
+	# (in fact, you could use sed or awk here, if you like)
+	PV=0.0.1
+
+	# The expected version of fastconf API
+	# (in simplest case, equal to current fastconf version)
+	FC_API_WANT=0
+
+	# The obligatory initialization function. Called by fastconf as soon
+	# as it loaded.
+	conf_init() {
+		# Use functions from module 'bar.sh'.
+		fc_inherit bar
+		
+		# Export conf_get_targets() for use in fastconf.
+		fc_export_functions \
+			conf_get_targets
+	}
+
+	# This function is called by fastconf when creating a Makefile, and
+	# it supposed to output (to STDOUT) some make rules. You are
+	# supposed to call most of fastconf-provided functions here.
+	conf_get_targets() {
+		: # (put some target-generation calls in here)
+	}
+
+	# Finally, source fastconf and let the magic begin. It will parse
+	# the command-line arguments, call your functions, perform all
+	# the necessary magic and finally exit.
+	. fastconf.sh
+
+	# Fallback in case fastconf invocation fails.
+	echo 'This package requires fastconf in order to be built.'
+	echo 'Please grab it from:'
+	echo '	http://github.com/mgorny/fastconf/'
+	echo 'or your favourite package manager and install.'
+	echo 'Afterwards, rerun this ./configure script. Thank you.'
+	exit 2
+
+
+Installing simple scripts
+-------------------------
+
+Let's assume you're doing the simplest case possible -- using fastconf
+to install a set of shell scripts. Your target generation rules would
+look like:
+
+	conf_get_targets() {
+		fc_export SCRIPTDIR '$(DATADIR)'/${PN}
+
+		fc_install_exe '$(BINDIR)' ${PN}.sh
+		fc_install '$(SCRIPTDIR)' lib/*.sh
+		fc_install '$(DOCDIR)' README
+	}
+
+Explaining shortly:
+
+1. `fc_export()` function writes a configure macro (variable), declaring
+	SCRIPTDIR as the subdirectory of `$(DATADIR)` (which corresponds to
+	the --datadir option), being named the same as the program name.
+
+	You should notice quoting there. We're quoting `$(DATADIR)` invocation
+	to disallow shell to expand it (it will be expanded by make nicely).
+	On the other hand, ${PN} is passed unquoted -- it is supposed to be
+	expanded in-place by the shell.
+
+	Thus, the resulting Makefile rule will look like:
+
+		SCRIPTDIR=$(DATADIR)/foo
+
+2. Next, `fc_install_exe()` creates an installation rule for `foo.sh`
+	(again, expanded by shell). The file will be installed
+	in `$(BINDIR)` (quoted for make expansion) in the target system
+	(i.e. after prepending with `$(DESTDIR)`), then made executable.
+
+	The rule will take care of creating the necessary parent
+	directories, and applying permissions to them as well.
+
+3. `fc_install()` creates an installation rule for remaining shell
+	scripts from within the lib/ subdirectory. They will be installed
+	in the `$(SCRIPTDIR)` directory which we declared earlier, and then
+	made world-readable.
+
+	Please notice that the actual filename expansion is performed by
+	shell here. In other words, the `fc_install()` function is going to
+	receive an already expanded list of files.
+
+	This has the disadvantage that any stray files created in that
+	directory and matching the pattern will be installed as well.
+	Moreover, if no files matched the pattern, the literal `lib/*.sh`
+	would be written to the Makefile.
+
+4. The last `fc_install()` invocation creates a rule installing
+	simple documentation. The `$(DOCDIR)` macro (corresponding
+	to the --docdir option) expands to a path like:
+
+		/usr/local/share/doc/foo-0.0.1
+
+
+<!--
+	(c) 2010 Michał Górny
+	Released under the terms of the 3-clause BSD license.
+	vim: set tw=72 syn=markdown :
+-->

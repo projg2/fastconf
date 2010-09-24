@@ -1,0 +1,74 @@
+fastconf -- an alternate build system
+=====================================
+
+Motivation
+----------
+
+The pretty obvious one -- lack of a simple, clean and fast build system.
+
+Autotools are complex, slow and complex. They try to retain backwards
+compatibility with dead systems which no longer can handle packages
+which are being built with autotools. They unnecessarily avoid useful
+'modern' shell features while horribly breaking compatibility with those
+being not much of a use.
+
+Have you ever seen fast configure script? I have. The source file looked
+like that:
+
+	AC_INIT
+
+As you might expect, the resulting configure script will do nothing.
+Try to run it:
+
+	$ autoconf
+	$ time ./configure 
+
+	real	0m2.206s
+	user	0m1.275s
+	sys	0m1.023s
+
+Pretty long for a no-op, ain't it?
+
+
+How is fastconf different?
+--------------------------
+
+fastconf is supposed to be simple, modular and fast. It tries to gain
+from the features of a POSIX system without pulling in external
+dependencies. It is written in plain POSIX shell script and it writes
+POSIX Makefiles. That's all.
+
+The main performance gain comes from the fact that all the configure
+checks aren't performed by the shell script (like autoconf does) but
+in the actual make invocation. Thus, they work in an environment similar
+to the actual build and gain from the parallel make invocation. In fact,
+AFAIK fastconf is the only build system right now doing checks
+in parallel.
+
+
+What are the features of fastconf?
+----------------------------------
+
+fastconf is in a pretty early stage of development right now. It lacks
+a lot of functions necessary to be used in a more complex project, and I
+haven't frozen even the first version of the API yet.
+
+However, right now fastconf itself is able to:
+
+- recognize most of the autotools-compatible configure script options,
+- choose a C compiler respecting ${CC} and --host,
+- perform simple C tests and build simple C targets (not libraries),
+- install files in a POSIX-compliant manner (not relying on 'install').
+
+
+How to use fastconf in your project?
+------------------------------------
+
+Please see the GUIDE file for information on the topic.
+
+
+<!--
+	(c) 2010 Michał Górny
+	Released under the terms of the 3-clause BSD license.
+	vim: set tw=72 syn=markdown :
+-->
