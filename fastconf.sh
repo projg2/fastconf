@@ -108,7 +108,9 @@ fc_inherit() {
 	local fn
 
 	for fn in "${@}"; do
-		if [ -f "${FC_MODULE_PATH}/${fn}.sh" ]; then
+		if fc_have fc_mod_${fn}_init; then
+			: # (module already loaded)
+		elif [ -f "${FC_MODULE_PATH}/${fn}.sh" ]; then
 			. "${FC_MODULE_PATH}/${fn}.sh"
 
 			if ! fc_mod_${fn}_init; then
