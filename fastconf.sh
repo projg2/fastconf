@@ -264,7 +264,8 @@ _EOF_
 # Callback: conf_arg_parse "${@}"
 # Called by fc_cmdline_parse() for unknown options, passing
 # the remaining command-line as the argument. This function should
-# return true if the option was parsed, false otherwise.
+# return 0 if no match occured or shift count otherwise
+# (i.e. 1 + number of positional arguments for the particular option).
 
 # Callback: conf_cmdline_parsed
 # Called after command-line parsing is complete and all defaults were
@@ -274,6 +275,8 @@ _EOF_
 # Parses the passed command-line arguments, preserving the original
 # argv.
 _fc_cmdline_parse() {
+	local i
+
 	while [ ${#} -gt 0 ]; do
 		case "${1}" in
 			--create-config=*)
@@ -346,8 +349,7 @@ _fc_cmdline_parse() {
 				exit 1
 				;;
 			*)
-				# XXX: support argument shifting in conf_arg_parse()
-				if ! _fc_call_exports arg_parse "${@}"; then
+				if _fc_call_exports arg_parse "${@}"; then
 					case "${1}" in
 						-*)
 							# autoconf lists more than a single option here if applicable
@@ -363,6 +365,13 @@ _fc_cmdline_parse() {
 							echo "configure: WARNING: unrecognized argument: ${1}" >&2
 							;;
 					esac
+				else
+					i=${?}
+
+					while [ ${i} -gt 1 ]; do
+						shift
+						: $(( i -= 1 ))
+					done
 				fi
 		esac
 
