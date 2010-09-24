@@ -348,10 +348,21 @@ _fc_cmdline_parse() {
 			*)
 				# XXX: support argument shifting in conf_arg_parse()
 				if ! _fc_call_exports arg_parse "${@}"; then
-					# autoconf lists more than a single option here if applicable
-					# but it's easier for us to print them one-by-one
-					# and we keep the form to satisfy portage's QA checks
-					echo "configure: WARNING: unrecognized options: ${1}" >&2
+					case "${1}" in
+						-*)
+							# autoconf lists more than a single option here if applicable
+							# but it's easier for us to print them one-by-one
+							# and we keep the form to satisfy portage's QA checks
+							echo "configure: WARNING: unrecognized options: ${1}" >&2
+							;;
+						*=*)
+							# ah, an assignment
+							export "${1}"
+							;;
+						*)
+							echo "configure: WARNING: unrecognized argument: ${1}" >&2
+							;;
+					esac
 				fi
 		esac
 
