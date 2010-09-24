@@ -4,7 +4,45 @@
 # Released under the terms of the 3-clause BSD license.
 
 fc_mod_cc_init() {
-	true
+	fc_export_functions \
+		fc_mod_cc_cmdline_parsed \
+		fc_mod_cc_get_targets
+}
+
+fc_mod_cc_cmdline_parsed() {
+	# Sadly, we don't have any -cc prefixed with a host triplet.
+	# Thus, we have to look for -gcc too.
+	local ccnames cc
+
+	if [ -z "${CC}" -a -n "${CHOST}" ]; then
+		if fc_have "${CHOST}"-gcc; then
+			CC=${CHOST}-gcc
+		elif fc_have "${CHOST}"-cc; then
+			CC=${CHOST}-cc
+		else
+			echo "WARNING: ${CHOST}-{gcc,cc} not found." >&2
+		fi
+	fi
+
+	if [ -z "${CC}" ]; then
+		if fc_have gcc; then
+			CC=gcc
+		elif fc_have cc; then
+			CC=cc
+		else
+			echo "ERROR: unable to find any C compiler (neither gcc nor cc)." >&2
+			exit 1
+		fi
+	fi
+
+	echo "CC: ${CC}" >&2
+}
+
+fc_mod_cc_get_targets() {
+	fc_export CC "${CC}"
+	fc_export CFLAGS "${CFLAGS}"
+	fc_export CPPFLAGS "${CPPFLAGS}"
+	fc_export LDFLAGS "${LDFLAGS}"
 }
 
 # Synopsis: _fc_mkrule_code <name> <includes> <code>

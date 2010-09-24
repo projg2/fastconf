@@ -186,6 +186,10 @@ _fc_api_checkver() {
 	fi
 }
 
+fc_have() {
+	type "${1}" >/dev/null 2>&1
+}
+
 # PART I
 # command-line parsing
 
