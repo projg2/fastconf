@@ -258,9 +258,13 @@ _EOF_
 }
 
 # Callback: conf_arg_parse "${@}"
-# Mandatory. Is called by fc_cmdline_parse() for unknown options,
-# passing the remaining command-line as the argument. This function
-# should return true if the option was parsed, false otherwise.
+# Called by fc_cmdline_parse() for unknown options, passing
+# the remaining command-line as the argument. This function should
+# return true if the option was parsed, false otherwise.
+
+# Callback: conf_cmdline_parsed
+# Called after command-line parsing is complete and all defaults were
+# set.
 
 # Synopsis: _fc_cmdline_parse "${@}"
 # Parses the passed command-line arguments, preserving the original
@@ -660,5 +664,6 @@ _fc_cmdline_unset
 _fc_cmdline_parse "${@}"
 _fc_cmdline_default
 
+_fc_call_exports cmdline_parsed
 fc_setup_makefile Makefile ${FC_MAKEFILE_IN}
 exit 0
