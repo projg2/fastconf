@@ -46,7 +46,7 @@ fi
 : ${FC_INSTALL_CHMOD:=a+r}
 : ${FC_INSTALL_CHMOD_EXE:=a+rx}
 
-unset FC_EXPORTED_FUNCTIONS
+unset FC_EXPORTED_FUNCTIONS FC_INHERITED
 
 # Synopsis: fc_export_functions <func> [...]
 # Add the function <func> and the following functions to the exported
@@ -101,21 +101,37 @@ _fc_call_exports() {
 	return ${ret}
 }
 
+# Synopsis: fc_in_array <needle> <elem1> [...]
+fc_in_array() {
+	local n
+	n=${1}
+	shift
+
+	while [ ${#} -gt 0 ]; do
+		[ "${1}" = "${n}" ] && return 0
+		shift
+	done
+
+	return 1
+}
+
 # Synopsis: fc_inherit <module> [...]
 # Inherit the functions from <module>.
 fc_inherit() {
 	local fn
 
 	for fn in "${@}"; do
-		if fc_have fc_mod_${fn}_init; then
+		if fc_in_array ${fn} ${FC_INHERITED}; then
 			: # (module already loaded)
 		elif [ -f "${FC_MODULE_PATH}/${fn}.sh" ]; then
 			. "${FC_MODULE_PATH}/${fn}.sh"
 
 			if ! fc_mod_${fn}_init; then
-				echo "FATAL ERROR: unable to initalize module ${fn}." >&2
+				echo "FATAL ERROR: unable to initialize module ${fn}." >&2
 				exit 2
 			fi
+
+			FC_INHERITED=${FC_INHERITED+${FC_INHERITED} }${fn}
 		else
 			echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
 			exit 2
