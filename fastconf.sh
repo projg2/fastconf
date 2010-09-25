@@ -348,7 +348,11 @@ _fc_cmdline_parse() {
 				;;
 			--help)
 				_fc_cmdline_help
-				exit 1
+				exit 0
+				;;
+			--version)
+				echo "${PACKAGE} configure script, using fastconf ${FC_API}"
+				exit 0
 				;;
 			*)
 				if _fc_call_exports arg_parse "${@}"; then
