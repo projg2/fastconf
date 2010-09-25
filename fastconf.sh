@@ -203,8 +203,22 @@ _fc_api_checkver() {
 	fi
 }
 
+# Synopsis: fc_have <app> [<fallback-args> [...]]
+# Portably check whether application <app> is available on the system.
+# Please notice that this function is not guaranteed to work with
+# builtins or functions, and it may call "${@}" if it is unable to find
+# a non-invasive method of finding the app. If no <fallback-args> are
+# specified, fc_have() defaults to '--version'.
 fc_have() {
-	type "${1}" >/dev/null 2>&1
+	if type type >/dev/null 2>&1; then
+		type "${1}" >/dev/null 2>&1
+	elif which which >/dev/null 2>&1; then
+		which "${1}" >/dev/null 2>&1
+	else
+		[ ${#} -lt 2 ] && set -- "${1}" --version
+		"${@}" >/dev/null 2>&1
+		[ ${?} -ne 127 ]
+	fi
 }
 
 # System checks support
