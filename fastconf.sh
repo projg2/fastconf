@@ -86,16 +86,16 @@ _fc_check_exports() {
 # Call all exported variants of <func> function (either conf_<func>
 # or fc_mod_*_<func>). Returns true if at least one call succeded.
 _fc_call_exports() {
-	local funcname f sf ret
+	local funcname f ret
 	funcname=${1}
 	ret=1
 	shift
 
 	for f in ${FC_EXPORTED_FUNCTIONS}; do
-		sf=${f%_${funcname}}
-		if [ ${sf} = conf -o ${sf#fc_mod_} != ${sf} -a ${sf} != ${f} ]; then
-			${f} "${@}" && ret=0
-		fi
+		case ${f} in
+			conf_${funcname}|fc_mod_*_${funcname})
+				${f} "${@}" && ret=0
+		esac
 	done
 
 	return ${ret}
