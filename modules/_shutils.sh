@@ -32,3 +32,12 @@ fc_array_has() {
 
 	return 1
 }
+
+# Synopsis: fc_array_append <varname> <elem1> [...]
+fc_array_append() {
+	local varname
+	varname=${1}
+	shift
+
+	eval "${varname}=\${${varname}+\${${varname}} }\${@}"
+}

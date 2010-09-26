@@ -53,7 +53,7 @@ unset FC_EXPORTED_FUNCTIONS FC_INHERITED
 # function list. The functions have to resemble the conf_* naming scheme
 # (for ./configure script) or fc_mod_* one (for modules).
 fc_export_functions() {
-	FC_EXPORTED_FUNCTIONS=${FC_EXPORTED_FUNCTIONS+${FC_EXPORTED_FUNCTIONS} }${*}
+	fc_array_append FC_EXPORTED_FUNCTIONS "${@}"
 }
 
 # Synopsis: _fc_check_exports
@@ -113,7 +113,7 @@ _fc_inherit() {
 			exit 2
 		fi
 
-		FC_INHERITED=${FC_INHERITED+${FC_INHERITED} }${fn}
+		fc_array_append FC_INHERITED "${fn}"
 	else
 		echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
 		exit 2
@@ -220,12 +220,12 @@ fc_have() {
 
 # Synopsis: _fc_append_test <name>
 _fc_append_test() {
-	FC_TESTLIST=${FC_TESTLIST+${FC_TESTLIST} }${1}
+	fc_array_append FC_TESTLIST "${1}"
 }
 
 # Synopsis: _fc_append_source <name.c>
 _fc_append_source() {
-	FC_TESTLIST_SOURCES=${FC_TESTLIST_SOURCES+${FC_TESTLIST_SOURCES} }${1}
+	fc_array_append FC_TESTLIST_SOURCES "${1}"
 }
 
 # Synopsis: fc_def <name> [<val>]
@@ -279,7 +279,7 @@ fc_export() {
 
 # Synopsis: _fc_append_output <name>
 _fc_append_output() {
-	FC_OUTPUTLIST=${FC_OUTPUTLIST+${FC_OUTPUTLIST} }${1}
+	fc_array_append FC_OUTPUTLIST "${1}"
 }
 
 # Synopsis: fc_set_target <target> <prereqs>
@@ -288,14 +288,14 @@ _fc_append_output() {
 fc_set_target() {
 	echo "${1}: ${2}"
 
-	FC_TARGETLIST=${FC_TARGETLIST+${FC_TARGETLIST} }${1}
+	fc_array_append FC_TARGETLIST "${1}"
 }
 
 # Synopsis: fc_add_subdir <subdir>
 # Support descending into a subdirectory <subdir> within the default
 # targets.
 fc_add_subdir() {
-	FC_SUBDIRS=${FC_SUBDIRS+${FC_SUBDIRS} }${1}
+	fc_array_append FC_SUBDIRS "${1}"
 }
 
 # Synopsis: fc_install_dir <dir>
@@ -318,7 +318,7 @@ fc_install_chmod() {
 	FC_INSTALL="${FC_INSTALL}
 	cp ${@} \"\$(DESTDIR)${dest}\""
 
-	FC_INSTALL_PREREQS=${FC_INSTALL_PREREQS+${FC_INSTALL_PREREQS} }${@}
+	fc_array_append FC_INSTALL_PREREQS "${@}"
 
 	# Transform the array to contain basenames
 	i=${#}
@@ -339,7 +339,7 @@ fc_install_as_chmod() {
 	cp \"${3}\" \"\$(DESTDIR)${2}/${4}\"
 	cd \"\$(DESTDIR)${2}\" && chmod ${1} \"${4}\""
 
-	FC_INSTALL_PREREQS=${FC_INSTALL_PREREQS+${FC_INSTALL_PREREQS} }${3}
+	fc_array_append FC_INSTALL_PREREQS "${3}"
 }
 
 # Synopsis: fc_install <dest> <files>
