@@ -3,6 +3,10 @@
 # (c) 2010 Michał Górny
 # Released under the terms of the 3-clause BSD license.
 
+: ${FC_INSTALL_UMASK:=a+rx}
+: ${FC_INSTALL_CHMOD:=a+r}
+: ${FC_INSTALL_CHMOD_EXE:=a+rx}
+
 fc_mod_install_init() {
 	fc_export_functions \
 		fc_mod_install_help \

@@ -51,10 +51,6 @@ fi
 # Set to the expected FC_API version.
 : ${FC_API_WANT}
 
-: ${FC_INSTALL_UMASK:=a+rx}
-: ${FC_INSTALL_CHMOD:=a+r}
-: ${FC_INSTALL_CHMOD_EXE:=a+rx}
-
 unset FC_EXPORTED_FUNCTIONS FC_INHERITED
 
 # Synopsis: fc_exit [code]
