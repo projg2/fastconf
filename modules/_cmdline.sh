@@ -68,7 +68,7 @@ Options:
 
 _EOF_
 
-	_fc_call_exports help && echo
+	_fc_call_exports help && echo || :
 }
 
 # Callback: conf_arg_parse "${@}"
@@ -193,7 +193,7 @@ _fc_cmdline_parse() {
 	done
 
 	_fc_cmdline_default
-	_fc_call_exports cmdline_parsed
+	_fc_call_exports cmdline_parsed || :
 }
 
 # Synopsis: _fc_cmdline_default
