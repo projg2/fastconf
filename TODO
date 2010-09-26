@@ -8,7 +8,8 @@ General TODO
 2. Support guessing the `--build` system (so that we could be able
 	to at least guess whether we're cross-compiling if only `--host`
 	is passed),
-3. Support specifying a general builddir.
+3. Support specifying a general builddir,
+4. Support installing manpages.
 
 
 `cc` module TODO
