@@ -19,7 +19,7 @@ conf_get_targets() {
 	fc_install_as '$(BINDIR)' ${PN}.sh.out ${PN}.sh
 	fc_install '$(MODULEDIR)' modules/*.sh
 
-	fc_install '$(DOCDIR)' CODING-STYLE.md GUIDE README
+	fc_install '$(DOCDIR)' CODING-STYLE.md GUIDE README TODO
 }
 
 . ./fastconf.sh

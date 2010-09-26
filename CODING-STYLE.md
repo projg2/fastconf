@@ -15,11 +15,14 @@ General shell code policy
 
 1. The shell code must be compliant with Single Unix Specification
 	version 3, with the following remarks:
+
+	1. This includes both the 'shell command language' part as well
+		as base system utilities.
 	
-	1. Parts of the specification marked as 'XSI extensions' should not
+	2. Parts of the specification marked as 'XSI extensions' should not
 		be used.
 
-	2. `local` should be used to declare local variable list (without
+	3. `local` should be used to declare local variable list (without
 		assignments), however the script must not assume they would have
 		any effect.
 
@@ -41,7 +44,7 @@ General shell code policy
 				return ${ret}
 			}
 
-	3. due to the above assumption, `local` should not be used to
+	4. due to the above assumption, `local` should not be used to
 		localize special shell variables like `IFS` (the localization
 		would be pointless).
 
@@ -55,8 +58,8 @@ General shell code policy
 				IFS=${ifs_save}
 			}
 
-2. Additional features of other shells (like bash or dash) can be used
-	as long as the following conditions are met:
+2. Extended features of other shells (like bash or dash) or additional
+	applications can be used as long as the following conditions are met:
 
 	1. The code provides a fallback mechanism for POSIX shell (like use
 		of `type` in `fc_have()`) or implements an optional feature that
@@ -101,6 +104,11 @@ General shell code policy
 
 		_fc_call_exports foo || :
 
+5. Whenever possible, use of `grep` should be avoided in favor of shell
+	pattern matching (`case`) or pattern expansion. Moreover, it is
+	preferred to not mix use of `grep`, `sed` and `awk` -- in most cases
+	one of these tools is able to handle the case all by itself.
+
 
 Code style suggestions
 ----------------------
@@ -136,6 +144,14 @@ Code style suggestions
 6. When wrapping command invocations, the 'newline escape' (backslash)
 	should be preceded by a single space, and the following code lines
 	should be indented using a single tab.
+
+7. In parameter expansion, the variable should be always enclosed
+	in braces, even if no extended expansion is performed and even if
+	the expansion is referring to a positional parameter (`${1}`)
+	or a special shell variable (`${?}`).
+
+8. When using a command substitution, the parentheses form should always
+	be used in favor of backquote form (`$(foo bar)`).
 
 
 Writing fastconf modules

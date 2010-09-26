@@ -1,0 +1,41 @@
+fastconf TODO
+=============
+
+General TODO
+------------
+
+1. Describe undescribed functions, add a C example to `GUIDE`,
+2. Support guessing the `--build` system (so that we could be able
+	to at least guess whether we're cross-compiling if only `--host`
+	is passed),
+3. Support specifying a general builddir.
+
+
+`cc` module TODO
+----------------
+
+1. Support mixing sources and compiled objects in `fc_cc_build()`.
+
+
+QA TODO
+-------
+
+1. Introduce checking for whitespace whenever it is undesired
+	(e.g. in `fc_array_append()`),
+2. Review the code for uncatched but allowed failures (to enable
+	fastconf to run successfully with `set -e`).
+
+
+Additional modules
+------------------
+
+1. `cxx` -- C++ counterparts of `cc` module functions,
+2. `simple-checks` -- autoconf-like, universal, simple checks
+	for interface existence being able to use either `cc` or `cxx`
+	as the compiler backend.
+
+<!--
+	(c) 2010 Michał Górny
+	Released under the terms of the 3-clause BSD license.
+	vim: set tw=72 syn=markdown :
+-->
