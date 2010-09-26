@@ -23,12 +23,12 @@ fc_mod_cc_common_get_targets() {
 # supplied arguments. If it is unable to find any pkg-config, it outputs
 # a warning and returns 127.
 fc_pkg_config() {
-	if [ -z "${PKGCONFIG}" ]; then
+	if [ -z "${PKG_CONFIG}" ]; then
 		if [ -z "${PKGCONFIG_WARNED}" ]; then
 			if [ -n "${CHOST}" ] && fc_have "${CHOST}"-pkg-config; then
-				PKGCONFIG=${CHOST}-pkg-config
+				PKG_CONFIG=${CHOST}-pkg-config
 			elif fc_have pkg-config; then
-				PKGCONFIG=pkg-config
+				PKG_CONFIG=pkg-config
 
 				if [ "${CBUILD}" != "${CHOST}" ]; then
 					echo "WARNING: cross-compiling but no ${CHOST}-pkg-config found." >&2
@@ -43,5 +43,5 @@ fc_pkg_config() {
 		fi
 	fi
 
-	"${PKGCONFIG}" "${@}"
+	"${PKG_CONFIG}" "${@}"
 }
