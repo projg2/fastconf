@@ -11,7 +11,9 @@ _fc_unexpected_exit() {
 
 trap _fc_unexpected_exit EXIT
 
-FC_MODULE_PATH=./modules
+# You are free to redefine FC_MODULE_PATH wherever you'd like fastconf
+# to use modules from.
+: ${FC_MODULE_PATH=./modules}
 FC_API=0
 FC_API_MIN=0
 
