@@ -4,6 +4,13 @@
 # (c) 2010 Michał Górny
 # Released under the terms of the 3-clause BSD license.
 
+_fc_unexpected_exit() {
+	echo "ERROR: fastconf is exiting unexpectedly. This means you've probably hit" >&2
+	echo "an internal error. Please run through 'sh -x ./configure' too see more." >&2
+}
+
+trap _fc_unexpected_exit EXIT
+
 FC_MODULE_PATH=./modules
 FC_API=0
 FC_API_MIN=0
@@ -51,8 +58,16 @@ unset FC_EXPORTED_FUNCTIONS FC_INHERITED
 # Synopsis: fc_exit [code]
 # Terminate the configure script cleanly.
 fc_exit() {
+	trap - EXIT
 	exit "${@}"
 }
+
+_fc_sigexit() {
+	echo 'Terminating due to a signal.' >&2
+	fc_exit 3
+}
+
+trap _fc_sigexit HUP INT QUIT ABRT KILL TERM
 
 # Synopsis: fc_export_functions <func> [...]
 # Add the function <func> and the following functions to the exported
