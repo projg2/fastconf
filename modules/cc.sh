@@ -87,8 +87,8 @@ fc_cc_try_link() {
 	_fc_cc_mkrule_compile_and_link "check-${1}" "${4}" "${5}" "${6}"
 	echo
 
-	fc_array_append FC_TESTLIST "${1}"
-	fc_array_append FC_TESTLIST_SOURCES "${1}"
+	_fc_append_test "check-${1}"
+	_fc_append_source "check-${1}.c"
 }
 
 # Synopsis: fc_cc_compile <src> [<cppflags>]
@@ -102,7 +102,7 @@ fc_cc_compile() {
 	_fc_cc_mkcall_compile '$<' "${2}"
 	echo
 
-	fc_array_append FC_OUTPUTLIST "${1}"
+	_fc_append_output "${out}"
 }
 
 # Synopsis: fc_cc_link <prog> <objects> [<cppflags>] [<libs>] [<ldflags>]
@@ -114,7 +114,7 @@ fc_cc_link() {
 	_fc_cc_mkcall_link "${2}" "${3}" "${4}" "${5}"
 	echo
 
-	fc_array_append FC_OUTPUTLIST "${1}"
+	_fc_append_output "${1}"
 }
 
 # Synopsis: fc_cc_build <prog> <sources> [<cppflags>] [<libs>] [<ldflags>]

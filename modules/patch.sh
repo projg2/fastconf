@@ -25,5 +25,5 @@ fc_sed() {
 	printf '%s: %s\n\tsed %s $< > $@' \
 		"${out}" "${in}" "${*}"
 
-	fc_array_append FC_OUTPUTLIST "${1}"
+	_fc_append_output "${out}"
 }
