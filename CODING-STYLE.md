@@ -95,6 +95,12 @@ General shell code policy
 
 		#!/bin/false
 
+4. The scripts should ensure proper handling of errors and ignoring
+	the command return codes whenever necessary for the scripts to work
+	with `set -e`. The failures should be ignored like the following:
+
+		_fc_call_exports foo || :
+
 
 Code style suggestions
 ----------------------
