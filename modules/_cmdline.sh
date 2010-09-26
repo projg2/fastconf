@@ -6,12 +6,7 @@
 fc_mod__cmdline_init() {
 	# Clean up the environment for command-line parsing
 
-	unset PREFIX EXEC_PREFIX \
-		BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
-		LOCALSTATEDIR \
-		LIBDIR INCLUDEDIR DATAROOTDIR DATADIR \
-		LOCALEDIR MANDIR DOCDIR HTMLDIR \
-		CBUILD CHOST CTARGET
+	unset CBUILD CHOST CTARGET
 }
 
 # Callback: conf_help
@@ -28,47 +23,13 @@ Synopsis:
 	./configure [options]
 
 Options:
-	--prefix=DIR		Prefix used to install arch-independent files
-				(\${PREFIX}, default: /usr/local)
-	--exec-prefix=DIR	Prefix used to install arch-dependent files
-				(\${EXEC_PREFIX}, default: \${PREFIX})
-
 	--build=PLATFORM
 	--host=PLATFORM
 	--target=PLATFORM
 
-	--bindir=DIR		Path to install user binaries
-				(default: \${EXEC_PREFIX}/bin)
-	--sbindir=DIR		Path to install system admin binaries
-				(default: \${EXEC_PREFIX}/sbin)
-	--libexecdir=DIR	Path to install program executables
-				(default: \${EXEC_PREFIX}/libexec)
-	--sysconfdir=DIR	Path to install read-only local data (config)
-				(default: \${PREFIX}/etc)
-	--localstatedir=DIR	Path to install writable local data
-				(default: \${PREFIX}/var)
-	--libdir=DIR		Path to install libraries
-				(default: \${EXEC_PREFIX}/lib)
-	--includedir=DIR	Path to install C header files
-				(default: \${PREFIX}/include)
-	--datarootdir=DIR	Path to install read-only system data
-				(\${DATAROOTDIR}, default: \${PREFIX}/share)
-	--datadir=DIR		Path to install read-only program data
-				(default: \${DATAROOTDIR})
-	--localedir=DIR		Path to install locale data
-				(default: \${DATAROOTDIR}/locale)
-	--mandir=DIR		Path to install manpages
-				(default: \${DATAROOTDIR}/man)
-	--infodir=DIR		Path to install GNU info docs
-				(default: \${DATAROOTDIR}/info)
-	--docdir=DIR		Path to install documentation (\${DOCDIR},
-				 default: \${DATAROOTDIR}/doc/\${PACKAGE})
-	--htmldir=DIR		Path to install HTML docs
-				(default: \${DOCDIR})
-
 _EOF_
 
-	_fc_call_exports help && echo || :
+	_fc_call_exports help || :
 }
 
 # Callback: conf_arg_parse "${@}"
@@ -105,54 +66,6 @@ _fc_cmdline_parse() {
 				;;
 			--target=*)
 				CTARGET=${1#--target=}
-				;;
-			--prefix=*)
-				PREFIX=${1#--prefix=}
-				;;
-			--exec-prefix=*)
-				EXEC_PREFIX=${1#--exec-prefix=}
-				;;
-			--bindir=*)
-				BINDIR=${1#--bindir=}
-				;;
-			--sbindir=*)
-				SBINDIR=${1#--sbindir=}
-				;;
-			--libexecdir=*)
-				LIBEXECDIR=${1#--libexecdir=}
-				;;
-			--sysconfdir=*)
-				SYSCONFDIR=${1#--sysconfdir=}
-				;;
-			--localstatedir=*)
-				LOCALSTATEDIR=${1#--localstatedir=}
-				;;
-			--libdir=*)
-				LIBDIR=${1#--libdir=}
-				;;
-			--includedir=*)
-				INCLUDEDIR=${1#--includedir=}
-				;;
-			--datarootdir=*)
-				DATAROOTDIR=${1#--datarootdir=}
-				;;
-			--datadir=*)
-				DATADIR=${1#--datadir=}
-				;;
-			--localedir=*)
-				LOCALEDIR=${1#--localedir=}
-				;;
-			--mandir=*)
-				MANDIR=${1#--mandir=}
-				;;
-			--infodir=*)
-				INFODIR=${1#--infodir=}
-				;;
-			--docdir=*)
-				DOCDIR=${1#--docdir=}
-				;;
-			--htmldir=*)
-				HTMLDIR=${1#--htmldir=}
 				;;
 			--help)
 				_fc_cmdline_help
@@ -202,22 +115,4 @@ _fc_cmdline_default() {
 	: ${CBUILD=}
 	: ${CHOST=${CBUILD}}
 	: ${CTARGET=${CHOST}}
-
-	: ${PREFIX=/usr/local}
-	: ${EXEC_PREFIX=\$(PREFIX)}
-
-	: ${BINDIR=\$(EXEC_PREFIX)/bin}
-	: ${SBINDIR=\$(EXEC_PREFIX)/sbin}
-	: ${LIBEXECDIR=\$(EXEC_PREFIX)/libexec}
-	: ${SYSCONFDIR=\$(PREFIX)/etc}
-	: ${LOCALSTATEDIR=\$(PREFIX)/var}
-	: ${LIBDIR=\$(EXEC_PREFIX)/lib}
-	: ${INCLUDEDIR=\$(PREFIX)/include}
-	: ${DATAROOTDIR=\$(PREFIX)/share}
-	: ${DATADIR=\$(DATAROOTDIR)}
-	: ${LOCALEDIR=\$(DATAROOTDIR)/locale}
-	: ${MANDIR=\$(DATAROOTDIR)/man}
-	: ${INFODIR=\$(DATAROOTDIR)/info}
-	: ${DOCDIR=\$(DATAROOTDIR)/doc/${PACKAGE}}
-	: ${HTMLDIR=\$(DOCDIR)}
 }
