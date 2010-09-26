@@ -218,16 +218,6 @@ fc_have() {
 
 # System checks support
 
-# Synopsis: _fc_append_test <name>
-_fc_append_test() {
-	fc_array_append FC_TESTLIST "${1}"
-}
-
-# Synopsis: _fc_append_source <name.c>
-_fc_append_source() {
-	fc_array_append FC_TESTLIST_SOURCES "${1}"
-}
-
 # Synopsis: fc_def <name> [<val>]
 # Output '#define <name> <val>'.
 fc_def() {
@@ -275,11 +265,6 @@ _fc_create_config() {
 # conf_get_targets() and conf_get_exports().
 fc_export() {
 	echo "${1}=${2}"
-}
-
-# Synopsis: _fc_append_output <name>
-_fc_append_output() {
-	fc_array_append FC_OUTPUTLIST "${1}"
 }
 
 # Synopsis: fc_set_target <target> <prereqs>
