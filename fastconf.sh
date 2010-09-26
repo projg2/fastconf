@@ -101,18 +101,23 @@ _fc_call_exports() {
 	return ${ret}
 }
 
-# Synopsis: fc_in_array <needle> <elem1> [...]
-fc_in_array() {
-	local n
-	n=${1}
-	shift
+# Synopsis: _fc_inherit <module>
+# Internal fc_inherit() variant not relying on complete shell feature
+# set (used to inherit _shutils).
+_fc_inherit() {
+	if [ -f "${FC_MODULE_PATH}/${1}.sh" ]; then
+		. "${FC_MODULE_PATH}/${1}.sh"
 
-	while [ ${#} -gt 0 ]; do
-		[ "${1}" = "${n}" ] && return 0
-		shift
-	done
+		if ! fc_mod_${1}_init; then
+			echo "FATAL ERROR: unable to initialize module ${1}." >&2
+			exit 2
+		fi
 
-	return 1
+		FC_INHERITED=${FC_INHERITED+${FC_INHERITED} }${fn}
+	else
+		echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
+		exit 2
+	fi
 }
 
 # Synopsis: fc_inherit <module> [...]
@@ -121,20 +126,10 @@ fc_inherit() {
 	local fn
 
 	for fn in "${@}"; do
-		if fc_in_array ${fn} ${FC_INHERITED}; then
+		if fc_array_has ${fn} ${FC_INHERITED}; then
 			: # (module already loaded)
-		elif [ -f "${FC_MODULE_PATH}/${fn}.sh" ]; then
-			. "${FC_MODULE_PATH}/${fn}.sh"
-
-			if ! fc_mod_${fn}_init; then
-				echo "FATAL ERROR: unable to initialize module ${fn}." >&2
-				exit 2
-			fi
-
-			FC_INHERITED=${FC_INHERITED+${FC_INHERITED} }${fn}
 		else
-			echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
-			exit 2
+			_fc_inherit "${fn}"
 		fi
 	done
 }
@@ -491,6 +486,8 @@ _EOF_
 # Obligatory. Called after loading fastconf but before any processing
 # begins. Additional modules should be loaded here, using fc_inherit().
 # Should return true; otherwise configure will be aborted.
+
+_fc_inherit _shutils
 if ! conf_init; then
 	echo 'FATAL ERROR: conf_init() failed.' >&2
 	exit 2
