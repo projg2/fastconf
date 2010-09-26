@@ -48,6 +48,12 @@ fi
 
 unset FC_EXPORTED_FUNCTIONS FC_INHERITED
 
+# Synopsis: fc_exit [code]
+# Terminate the configure script cleanly.
+fc_exit() {
+	exit "${@}"
+}
+
 # Synopsis: fc_export_functions <func> [...]
 # Add the function <func> and the following functions to the exported
 # function list. The functions have to resemble the conf_* naming scheme
@@ -110,13 +116,13 @@ _fc_inherit() {
 
 		if ! fc_mod_${1}_init; then
 			echo "FATAL ERROR: unable to initialize module ${1}." >&2
-			exit 2
+			fc_exit 2
 		fi
 
 		fc_array_append FC_INHERITED "${fn}"
 	else
 		echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
-		exit 2
+		fc_exit 2
 	fi
 }
 
@@ -189,11 +195,11 @@ _fc_api_checkver() {
 		if ! fc_version_ge "${FC_API}" "${FC_API_WANT}"; then
 			echo "ERROR: fastconf doesn't provide API ${FC_API_WANT} requested by ./configure" >&2
 			echo "(current version: ${FC_API}). Please consider upgrading fastconf." >&2
-			exit 2
+			fc_exit 2
 		elif ! fc_version_ge "${FC_API_WANT}" "${FC_API_MIN}"; then
 			echo "ERROR: fastconf doesn't provide backwards compatibility to API ${FC_API_WANT}." >&2
 			echo "Please consider upgrading the ./configure script to at least API ${FC_API_MIN}." >&2
-			exit 2
+			fc_exit 2
 		fi
 	fi
 }
@@ -475,7 +481,7 @@ _EOF_
 _fc_inherit _shutils
 if ! conf_init; then
 	echo 'FATAL ERROR: conf_init() failed.' >&2
-	exit 2
+	fc_exit 2
 fi
 _fc_api_checkver
 fc_inherit _cmdline
@@ -484,4 +490,4 @@ _fc_check_exports
 _fc_cmdline_parse "${@}"
 
 fc_setup_makefile Makefile ${FC_MAKEFILE_IN}
-exit 0
+fc_exit 0

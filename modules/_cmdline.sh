@@ -91,11 +91,11 @@ _fc_cmdline_parse() {
 		case "${1}" in
 			--create-config=*)
 				_fc_create_config "${1#--create-config=}"
-				exit 0
+				fc_exit 0
 				;;
 			--make=*)
 				_fc_build "${1#--make=}"
-				exit ${?}
+				fc_exit ${?}
 				;;
 			--build=*)
 				CBUILD=${1#--build=}
@@ -156,11 +156,11 @@ _fc_cmdline_parse() {
 				;;
 			--help)
 				_fc_cmdline_help
-				exit 0
+				fc_exit 0
 				;;
 			--version)
 				echo "${PACKAGE} configure script, using fastconf ${FC_API}"
-				exit 0
+				fc_exit 0
 				;;
 			*)
 				if _fc_call_exports arg_parse "${@}"; then

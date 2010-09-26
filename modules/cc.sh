@@ -34,7 +34,7 @@ fc_mod_cc_cmdline_parsed() {
 			CC=cc
 		else
 			echo "ERROR: unable to find any C compiler (neither gcc nor cc)." >&2
-			exit 1
+			fc_exit 1
 		fi
 	fi
 
