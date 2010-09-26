@@ -8,14 +8,19 @@ General TODO
 2. Support guessing the `--build` system (so that we could be able
 	to at least guess whether we're cross-compiling if only `--host`
 	is passed),
-3. Support specifying a general builddir,
-4. Support installing manpages.
+3. Support specifying a general builddir.
 
 
 `cc` module TODO
 ----------------
 
 1. Support mixing sources and compiled objects in `fc_cc_build()`.
+
+
+`install` module TODO
+---------------------
+
+1. Support installing manpages.
 
 
 QA TODO
