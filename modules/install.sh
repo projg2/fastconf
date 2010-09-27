@@ -10,7 +10,7 @@
 fc_mod_install_init() {
 	fc_export_functions \
 		fc_mod_install_help \
-		fc_mod_install_cmdline_parse \
+		fc_mod_install_arg_parse \
 		fc_mod_install_cmdline_parsed
 
 	unset PREFIX EXEC_PREFIX \
@@ -59,7 +59,7 @@ fc_mod_install_help() {
 _EOF_
 }
 
-fc_mod_install_cmdline_parse() {
+fc_mod_install_arg_parse() {
 	case "${1}" in
 		--prefix=*)
 			PREFIX=${1#--prefix=}
@@ -109,7 +109,11 @@ fc_mod_install_cmdline_parse() {
 		--htmldir=*)
 			HTMLDIR=${1#--htmldir=}
 			;;
+		*)
+			return 0
 	esac
+
+	return 1
 }
 
 fc_mod_install_cmdline_parsed() {
