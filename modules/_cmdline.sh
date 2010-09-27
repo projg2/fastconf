@@ -38,6 +38,21 @@ _EOF_
 # return 0 if no match occured or shift count otherwise
 # (i.e. 1 + number of positional arguments for the particular option).
 
+# Synopsis: _fc_call_arg_parse <args>
+# arg_parse callback uses reverse logic (shift count as return code, so
+# we can't use _fc_call_exports() here.
+_fc_call_arg_parse() {
+	local f
+	for f in ${FC_EXPORTED_FUNCTIONS}; do
+		case ${f} in
+			conf_arg_parse|fc_mod_*_arg_parse)
+				${f} "${@}" || return ${?}
+		esac
+	done
+
+	return 0
+}
+
 # Callback: conf_cmdline_parsed
 # Called after command-line parsing is complete and all defaults were
 # set.
@@ -76,7 +91,7 @@ _fc_cmdline_parse() {
 				fc_exit 0
 				;;
 			*)
-				if _fc_call_exports arg_parse "${@}"; then
+				if _fc_call_arg_parse "${@}"; then
 					case "${1}" in
 						-*)
 							# autoconf lists more than a single option here if applicable

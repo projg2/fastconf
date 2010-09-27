@@ -113,7 +113,7 @@ _fc_call_exports() {
 	for f in ${FC_EXPORTED_FUNCTIONS}; do
 		case ${f} in
 			conf_${funcname}|fc_mod_*_${funcname})
-				${f} "${@}" && ret=0
+				${f} "${@}" && ret=0 || :
 		esac
 	done
 
