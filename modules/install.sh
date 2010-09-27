@@ -132,12 +132,38 @@ fc_mod_install_cmdline_parsed() {
 	: ${HTMLDIR=\$(DOCDIR)}
 }
 
-# Synopsis: fc_install_dir <dir>
-# Setup creating <dir> along with parent directories, making them all
-# world-readable.
-_fc_install_dir() {
+# Synopsis: fc_install_dir [-m <mode>] [--] <dir>
+# Setup creating <dir> along with parent directories, and setting their
+# permissions to <mode> (or ${FC_INSTALL_UMASK} if not specified).
+fc_install_dir() {
+	local dirumask
+
+	dirumask=${FC_INSTALL_UMASK}
+	while [ ${#} -gt 0 ]; do
+		case "${1}" in
+			--mode=*)
+				dirumask=${1#--mode=}
+				shift
+				;;
+			-m|--mode)
+				if [ ${#} -lt 2 ]; then
+					echo 'fc_install_dir(): -m or --mode has to be followed by a mode spec.' >&2
+					return 1
+				fi
+				dirumask=${2}
+				shift 2
+				;;
+			--)
+				shift
+				break
+				;;
+			*)
+				break
+		esac
+	done
+
 	FC_INSTALL="${FC_INSTALL}
-	umask ${FC_INSTALL_UMASK}; mkdir -p \"\$(DESTDIR)${1}\""
+	umask ${dirumask}; mkdir -p \"\$(DESTDIR)${1}\""
 }
 
 # Synopsis: fc_install_chmod <mode> <dest> <files>
@@ -148,7 +174,7 @@ fc_install_chmod() {
 	shift
 	shift
 
-	_fc_install_dir "${dest}"
+	fc_install_dir -- "${dest}"
 	FC_INSTALL="${FC_INSTALL}
 	cp ${@} \"\$(DESTDIR)${dest}\""
 
@@ -168,7 +194,7 @@ fc_install_chmod() {
 
 # Synopsis: fc_install_as_chmod <mode> <dest> <src> <newname>
 fc_install_as_chmod() {
-	_fc_install_dir "${2}"
+	fc_install_dir -- "${2}"
 	FC_INSTALL="${FC_INSTALL}
 	cp \"${3}\" \"\$(DESTDIR)${2}/${4}\"
 	cd \"\$(DESTDIR)${2}\" && chmod ${1} \"${4}\""
