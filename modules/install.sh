@@ -166,15 +166,60 @@ fc_install_dir() {
 	umask ${dirumask}; mkdir -p \"\$(DESTDIR)${1}\""
 }
 
-# Synopsis: fc_install_chmod <mode> <dest> <files>
-fc_install_chmod() {
-	local dest mode i
-	mode=${1}
-	dest=${2}
-	shift
+# Synopsis: fc_install [-x|-m <mode>] [-d <mode>] [--] <dest> <files>
+# Install <files> in <dest>, creating the parent directories
+# and setting permissions as necessary. If '-d <mode>' is passed,
+# that permissions will be given to newly-created directories.
+# For files, the following algorithm is used:
+#	1) if '-m <mode>' is passed, <mode> will be used,
+#	2) if '-x' is passed, files will be made world-executable,
+#	3) if none of the above is passed, files will be world-readable.
+fc_install() {
+	local dest mode dmode i
+
+	mode=${FC_INSTALL_CHMOD}
+	unset dmode
+	while [ ${#} -gt 0 ]; do
+		case "${1}" in
+			-x|--executable)
+				mode=${FC_INSTALL_CHMOD_EXE}
+				;;
+			--mode=*)
+				mode=${1#--mode=}
+				shift
+				;;
+			-m|--mode)
+				if [ ${#} -lt 2 ]; then
+					echo 'fc_install(): -m or --mode has to be followed by a mode spec.' >&2
+					return 1
+				fi
+				mode=${2}
+				shift 2
+				;;
+			--directory-mode=*)
+				dmode=${1#--directory-mode=}
+				shift
+				;;
+			-d|--directory-mode)
+				if [ ${#} -lt 2 ]; then
+					echo 'fc_install(): -d or --directory-mode has to be followed by a mode spec.' >&2
+					return 1
+				fi
+				dmode=${2}
+				shift 2
+				;;
+			--)
+				shift
+				break
+				;;
+			*)
+				break
+		esac
+	done
+	dest=${1}
 	shift
 
-	fc_install_dir -- "${dest}"
+	fc_install_dir ${dmode+-m ${dmode}} -- "${dest}"
 	FC_INSTALL="${FC_INSTALL}
 	cp ${@} \"\$(DESTDIR)${dest}\""
 
@@ -202,18 +247,12 @@ fc_install_as_chmod() {
 	fc_array_append FC_INSTALL_PREREQS "${3}"
 }
 
-# Synopsis: fc_install <dest> <files>
-# Setup installing <files> into <dest>, creating parent directories if
-# necessary and making them world-readable afterwards.
-fc_install() {
-	fc_install_chmod ${FC_INSTALL_CHMOD} "${@}"
-}
-
 # Synopsis: fc_install_exe <dest> <files>
 # Setup installing <files> into <dest>, creating parent directories if
 # necessary and making them world-executable afterwards.
 fc_install_exe() {
-	fc_install_chmod ${FC_INSTALL_CHMOD_EXE} "${@}"
+	echo "WARNING: fc_install_exe is deprecated, please use fc_install -x instead." >&2
+	fc_install -x -- "${@}"
 }
 
 # Synopsis: fc_install_as <dest> <src> <newname>
@@ -225,5 +264,3 @@ fc_install_as() {
 fc_install_exe_as() {
 	fc_install_as_chmod ${FC_INSTALL_CHMOD_EXE} "${@}"
 }
-
-
