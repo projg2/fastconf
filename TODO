@@ -20,7 +20,7 @@ General TODO
 `install` module TODO
 ---------------------
 
-1. Support installing manpages.
+1. Support i18n suffixes in `fc_install_man()`.
 
 
 QA TODO

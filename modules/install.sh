@@ -175,9 +175,10 @@ fc_install_dir() {
 #	2) if '-x' is passed, files will be made world-executable,
 #	3) if none of the above is passed, files will be world-readable.
 fc_install() {
-	local dest mode dmode i
+	local dest mode dmode i no_mkdir
 
 	mode=${FC_INSTALL_CHMOD}
+	no_mkdir=0
 	unset dmode
 	while [ ${#} -gt 0 ]; do
 		case "${1}" in
@@ -208,6 +209,10 @@ fc_install() {
 				dmode=${2}
 				shift 2
 				;;
+			-D|--no-mkdir)
+				no_mkdir=1
+				shift
+				;;
 			--)
 				shift
 				break
@@ -219,7 +224,10 @@ fc_install() {
 	dest=${1}
 	shift
 
-	fc_install_dir ${dmode+-m ${dmode}} -- "${dest}"
+	if [ ${no_mkdir} -ne 1 ]; then
+		fc_install_dir ${dmode+-m ${dmode}} -- "${dest}"
+	fi
+
 	FC_INSTALL="${FC_INSTALL}
 	cp ${@} \"\$(DESTDIR)${dest}\""
 
@@ -241,9 +249,10 @@ fc_install() {
 # Install <src> to <dest>, renaming it to <newname>. For option
 # descriptions, please look at fc_install().
 fc_install_as() {
-	local mode dmode
+	local mode dmode no_mkdir
 
 	mode=${FC_INSTALL_CHMOD}
+	no_mkdir=0
 	unset dmode
 	while [ ${#} -gt 0 ]; do
 		case "${1}" in
@@ -274,6 +283,10 @@ fc_install_as() {
 				dmode=${2}
 				shift 2
 				;;
+			-D|--no-mkdir)
+				no_mkdir=1
+				shift
+				;;
 			--)
 				shift
 				break
@@ -282,12 +295,45 @@ fc_install_as() {
 				break
 		esac
 	done
-	fc_install_dir ${dmode+-m ${dmode}} -- "${2}"
+
+	if [ ${no_mkdir} -ne 1 ]; then
+		fc_install_dir ${dmode+-m ${dmode}} -- "${1}"
+	fi
+
 	FC_INSTALL="${FC_INSTALL}
 	cp \"${2}\" \"\$(DESTDIR)${1}/${3}\"
 	cd \"\$(DESTDIR)${1}\" && chmod ${mode} \"${3}\""
 
 	fc_array_append FC_INSTALL_PREREQS "${2}"
+}
+
+# Synopsis: fc_install_man <files> [...]
+# Setup installing manpages <files> into appropriate subdirectories
+# of $(MANDIR) based on their basenames.
+fc_install_man() {
+	local fn category categories
+
+	unset categories
+	while [ ${#} -gt 0 ]; do
+		fn=$(basename "${1}")
+		category=${fn##*.}
+
+		if [ -z "${category}" ]; then
+			echo "ERROR: unable to parse manpage name: ${fn}, skipping." >&2
+		else
+			fn=${fn%.${category}}
+			# autotools use first character only
+			# but man doesn't seem to like it
+			category='$(MANDIR)'/man${category}
+
+			if ! fc_array_has "${category}" ${categories}; then
+				fc_install_dir -- "${category}"
+				fc_array_append categories "${category}"
+			fi
+			fc_install -D -- "${category}" "${1}"
+		fi
+		shift
+	done
 }
 
 # Synopsis: fc_install_exe <dest> <files>
