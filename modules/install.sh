@@ -166,6 +166,74 @@ fc_install_dir() {
 	umask ${dirumask}; mkdir -p \"\$(DESTDIR)${1}\""
 }
 
+# Synopsis: _fc_install_common [options] [--] <destdir> [...]
+# Parse common arguments to fc_install() and fc_install_as() and create
+# parent directories if requested. Set mode to the expected file
+# permissions, and return shift count.
+_fc_install_common() {
+	local dmode i no_mkdir
+
+	mode=${FC_INSTALL_CHMOD}
+	no_mkdir=0
+	i=0
+	unset dmode
+	while [ ${#} -gt 0 ]; do
+		case "${1}" in
+			-x|--executable)
+				mode=${FC_INSTALL_CHMOD_EXE}
+				shift
+				: $(( i += 1 ))
+				;;
+			--mode=*)
+				mode=${1#--mode=}
+				shift
+				: $(( i += 1 ))
+				;;
+			-m|--mode)
+				if [ ${#} -lt 2 ]; then
+					echo 'fc_install(): -m or --mode has to be followed by a mode spec.' >&2
+					return 1
+				fi
+				mode=${2}
+				shift 2
+				: $(( i += 2 ))
+				;;
+			--directory-mode=*)
+				dmode=${1#--directory-mode=}
+				shift
+				: $(( i += 1 ))
+				;;
+			-d|--directory-mode)
+				if [ ${#} -lt 2 ]; then
+					echo 'fc_install(): -d or --directory-mode has to be followed by a mode spec.' >&2
+					return 1
+				fi
+				dmode=${2}
+				shift 2
+				: $(( i += 2 ))
+				;;
+			-D|--no-mkdir)
+				no_mkdir=1
+				shift
+				: $(( i += 1 ))
+				;;
+			--)
+				shift
+				: $(( i += 1 ))
+				break
+				;;
+			*)
+				break
+		esac
+	done
+
+	if [ ${no_mkdir} -ne 1 ]; then
+		fc_install_dir ${dmode+-m ${dmode}} -- "${1}"
+	fi
+
+	return ${i}
+}
+
 # Synopsis: fc_install [-x|-m <mode>] [-d <mode>] [--] <dest> <files>
 # Install <files> in <dest>, creating the parent directories
 # and setting permissions as necessary. If '-d <mode>' is passed,
@@ -175,58 +243,10 @@ fc_install_dir() {
 #	2) if '-x' is passed, files will be made world-executable,
 #	3) if none of the above is passed, files will be world-readable.
 fc_install() {
-	local dest mode dmode i no_mkdir
-
-	mode=${FC_INSTALL_CHMOD}
-	no_mkdir=0
-	unset dmode
-	while [ ${#} -gt 0 ]; do
-		case "${1}" in
-			-x|--executable)
-				mode=${FC_INSTALL_CHMOD_EXE}
-				;;
-			--mode=*)
-				mode=${1#--mode=}
-				shift
-				;;
-			-m|--mode)
-				if [ ${#} -lt 2 ]; then
-					echo 'fc_install(): -m or --mode has to be followed by a mode spec.' >&2
-					return 1
-				fi
-				mode=${2}
-				shift 2
-				;;
-			--directory-mode=*)
-				dmode=${1#--directory-mode=}
-				shift
-				;;
-			-d|--directory-mode)
-				if [ ${#} -lt 2 ]; then
-					echo 'fc_install(): -d or --directory-mode has to be followed by a mode spec.' >&2
-					return 1
-				fi
-				dmode=${2}
-				shift 2
-				;;
-			-D|--no-mkdir)
-				no_mkdir=1
-				shift
-				;;
-			--)
-				shift
-				break
-				;;
-			*)
-				break
-		esac
-	done
+	local dest mode i
+	_fc_install_common "${@}" || shift ${?}
 	dest=${1}
 	shift
-
-	if [ ${no_mkdir} -ne 1 ]; then
-		fc_install_dir ${dmode+-m ${dmode}} -- "${dest}"
-	fi
 
 	FC_INSTALL="${FC_INSTALL}
 	cp ${@} \"\$(DESTDIR)${dest}\""
@@ -249,56 +269,8 @@ fc_install() {
 # Install <src> to <dest>, renaming it to <newname>. For option
 # descriptions, please look at fc_install().
 fc_install_as() {
-	local mode dmode no_mkdir
-
-	mode=${FC_INSTALL_CHMOD}
-	no_mkdir=0
-	unset dmode
-	while [ ${#} -gt 0 ]; do
-		case "${1}" in
-			-x|--executable)
-				mode=${FC_INSTALL_CHMOD_EXE}
-				;;
-			--mode=*)
-				mode=${1#--mode=}
-				shift
-				;;
-			-m|--mode)
-				if [ ${#} -lt 2 ]; then
-					echo 'fc_install_as(): -m or --mode has to be followed by a mode spec.' >&2
-					return 1
-				fi
-				mode=${2}
-				shift 2
-				;;
-			--directory-mode=*)
-				dmode=${1#--directory-mode=}
-				shift
-				;;
-			-d|--directory-mode)
-				if [ ${#} -lt 2 ]; then
-					echo 'fc_install_as(): -d or --directory-mode has to be followed by a mode spec.' >&2
-					return 1
-				fi
-				dmode=${2}
-				shift 2
-				;;
-			-D|--no-mkdir)
-				no_mkdir=1
-				shift
-				;;
-			--)
-				shift
-				break
-				;;
-			*)
-				break
-		esac
-	done
-
-	if [ ${no_mkdir} -ne 1 ]; then
-		fc_install_dir ${dmode+-m ${dmode}} -- "${1}"
-	fi
+	local mode
+	_fc_install_common "${@}" || shift ${?}
 
 	FC_INSTALL="${FC_INSTALL}
 	cp \"${2}\" \"\$(DESTDIR)${1}/${3}\"
