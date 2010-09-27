@@ -237,14 +237,57 @@ fc_install() {
 	cd \"\$(DESTDIR)${dest}\" && chmod ${mode} ${@}"
 }
 
-# Synopsis: fc_install_as_chmod <mode> <dest> <src> <newname>
-fc_install_as_chmod() {
-	fc_install_dir -- "${2}"
-	FC_INSTALL="${FC_INSTALL}
-	cp \"${3}\" \"\$(DESTDIR)${2}/${4}\"
-	cd \"\$(DESTDIR)${2}\" && chmod ${1} \"${4}\""
+# Synopsis: fc_install_as [-x|-m <mode>] [-d <mode>] [--] <dest> <src> <newname>
+# Install <src> to <dest>, renaming it to <newname>. For option
+# descriptions, please look at fc_install().
+fc_install_as() {
+	local mode dmode
 
-	fc_array_append FC_INSTALL_PREREQS "${3}"
+	mode=${FC_INSTALL_CHMOD}
+	unset dmode
+	while [ ${#} -gt 0 ]; do
+		case "${1}" in
+			-x|--executable)
+				mode=${FC_INSTALL_CHMOD_EXE}
+				;;
+			--mode=*)
+				mode=${1#--mode=}
+				shift
+				;;
+			-m|--mode)
+				if [ ${#} -lt 2 ]; then
+					echo 'fc_install_as(): -m or --mode has to be followed by a mode spec.' >&2
+					return 1
+				fi
+				mode=${2}
+				shift 2
+				;;
+			--directory-mode=*)
+				dmode=${1#--directory-mode=}
+				shift
+				;;
+			-d|--directory-mode)
+				if [ ${#} -lt 2 ]; then
+					echo 'fc_install_as(): -d or --directory-mode has to be followed by a mode spec.' >&2
+					return 1
+				fi
+				dmode=${2}
+				shift 2
+				;;
+			--)
+				shift
+				break
+				;;
+			*)
+				break
+		esac
+	done
+	fc_install_dir ${dmode+-m ${dmode}} -- "${2}"
+	FC_INSTALL="${FC_INSTALL}
+	cp \"${2}\" \"\$(DESTDIR)${1}/${3}\"
+	cd \"\$(DESTDIR)${1}\" && chmod ${mode} \"${3}\""
+
+	fc_array_append FC_INSTALL_PREREQS "${2}"
 }
 
 # Synopsis: fc_install_exe <dest> <files>
@@ -255,12 +298,8 @@ fc_install_exe() {
 	fc_install -x -- "${@}"
 }
 
-# Synopsis: fc_install_as <dest> <src> <newname>
-fc_install_as() {
-	fc_install_as_chmod ${FC_INSTALL_CHMOD} "${@}"
-}
-
 # Synopsis: fc_install_exe_as <dest> <src> <newname>
 fc_install_exe_as() {
-	fc_install_as_chmod ${FC_INSTALL_CHMOD_EXE} "${@}"
+	echo "WARNING: fc_install_exe_as is deprecated, please use fc_install_as -x instead." >&2
+	fc_install_as -x -- "${@}"
 }
