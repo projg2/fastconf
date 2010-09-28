@@ -39,5 +39,5 @@ fc_array_append() {
 	varname=${1}
 	shift
 
-	eval "${varname}=\${${varname}+\${${varname}} }\${@}"
+	eval "set -- \${${varname}} \"\${@}\"; ${varname}=\${*}"
 }
