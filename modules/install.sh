@@ -17,7 +17,8 @@ fc_mod_install_init() {
 		BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
 		LOCALSTATEDIR \
 		LIBDIR INCLUDEDIR DATAROOTDIR DATADIR \
-		LOCALEDIR MANDIR DOCDIR HTMLDIR
+		LOCALEDIR MANDIR DOCDIR HTMLDIR \
+		FC_INSTALLED_DIRS
 }
 
 fc_mod_install_help() {
@@ -140,7 +141,7 @@ fc_mod_install_cmdline_parsed() {
 # Setup creating <dir> along with parent directories, and setting their
 # permissions to <mode> (or ${FC_INSTALL_UMASK} if not specified).
 fc_install_dir() {
-	local dirumask
+	local dirumask ifs_save
 
 	dirumask=${FC_INSTALL_UMASK}
 	while [ ${#} -gt 0 ]; do
@@ -166,8 +167,19 @@ fc_install_dir() {
 		esac
 	done
 
-	FC_INSTALL="${FC_INSTALL}
+	# Newline seems a pretty reasonable directory list sep -- make
+	# probably wouldn't like it anyway.
+	ifs_save=${IFS}
+	IFS='
+'
+
+	if ! fc_array_has "${1}" ${FC_INSTALLED_DIRS}; then
+		FC_INSTALL="${FC_INSTALL}
 	umask ${dirumask}; mkdir -p \"\$(DESTDIR)${1}\""
+		fc_array_append FC_INSTALLED_DIRS "${1}"
+	fi
+
+	IFS=${ifs_save}
 }
 
 # Synopsis: _fc_install_common [options] [--] <destdir> [...]
@@ -215,11 +227,6 @@ _fc_install_common() {
 				dmode=${2}
 				shift 2
 				: $(( i += 2 ))
-				;;
-			-D|--no-mkdir)
-				no_mkdir=1
-				shift
-				: $(( i += 1 ))
 				;;
 			--)
 				shift
@@ -287,9 +294,8 @@ fc_install_as() {
 # Setup installing manpages <files> into appropriate subdirectories
 # of $(MANDIR) based on their basenames.
 fc_install_man() {
-	local fn category categories
+	local fn category
 
-	unset categories
 	while [ ${#} -gt 0 ]; do
 		fn=$(basename "${1}")
 		category=${fn##*.}
@@ -302,11 +308,7 @@ fc_install_man() {
 			# but man doesn't seem to like it
 			category='$(MANDIR)'/man${category}
 
-			if ! fc_array_has "${category}" ${categories}; then
-				fc_install_dir -- "${category}"
-				fc_array_append categories "${category}"
-			fi
-			fc_install -D -- "${category}" "${1}"
+			fc_install -- "${category}" "${1}"
 		fi
 		shift
 	done
