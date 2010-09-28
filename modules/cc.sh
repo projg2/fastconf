@@ -6,8 +6,17 @@
 fc_mod_cc_init() {
 	fc_inherit cc_common
 	fc_export_functions \
+		fc_mod_cc_help \
 		fc_mod_cc_cmdline_parsed \
 		fc_mod_cc_get_targets
+}
+
+fc_mod_cc_help() {
+	cat <<_EOF_
+	CC=<name>		C compiler command
+	CFLAGS='<flag> ...'	C compiler flags
+
+_EOF_
 }
 
 fc_mod_cc_cmdline_parsed() {

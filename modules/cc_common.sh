@@ -5,8 +5,17 @@
 
 fc_mod_cc_common_init() {
 	fc_export_functions \
+		fc_mod_cc_common_help \
 		fc_mod_cc_common_cmdline_parsed \
 		fc_mod_cc_common_get_targets
+}
+
+fc_mod_cc_common_help() {
+	cat <<_EOF_
+	CPPFLAGS='<flag> ...'	C/C++ preprocessor flags (-I..., -D...)
+	LDFLAGS='<flag> ...'	C/C++ linking flags (-L..., -Wl,...)
+
+_EOF_
 }
 
 fc_mod_cc_common_cmdline_parsed() {

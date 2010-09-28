@@ -22,7 +22,7 @@ _fc_cmdline_help() {
 Synopsis:
 	./configure [options]
 
-Options:
+Options and arguments:
 	--build=PLATFORM
 	--host=PLATFORM
 	--target=PLATFORM
