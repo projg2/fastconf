@@ -8,6 +8,10 @@ fc_mod_cc_common_init() {
 		fc_mod_cc_common_help \
 		fc_mod_cc_common_get_targets \
 		fc_mod_cc_common_get_exports
+
+	set -- CONF_CPPFLAGS CONF_LDFLAGS CONF_LIBS
+	unset ${*}
+	fc_persist ${*}
 }
 
 fc_mod_cc_common_help() {
