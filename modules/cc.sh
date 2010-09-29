@@ -73,18 +73,19 @@ _fc_cc_mkcall_compile() {
 		'$(CC) -c $(CFLAGS) $(CPPFLAGS)' "${2}" \
 		'-o $@' "${1}"
 }
-# Synopsis: _fc_mkcall_link <infiles> [<cppflags>] [<libs>] [<ldflags>]
+
+# Synopsis: _fc_mkcall_link <infiles> [<cppflags>] [<libs>] [<ldflags>] [<append>]
 _fc_cc_mkcall_link() {
-	printf '\t%s %s %s %s %s %s %s\n' \
+	printf '\t%s %s %s %s %s %s %s %s\n' \
 		'$(CC) $(CFLAGS) $(CPPFLAGS)' "${2}" "${4}" \
 		'$(LDFLAGS) -o $@' "${1}" \
-		'$(LIBS)' "${3}"
+		'$(LIBS)' "${3}" "${5}"
 }
 
-# Synopsis: _fc_mkrule_compile_and_link <name> [<cppflags>] [<libs>] [<ldflags>]
+# Synopsis: _fc_mkrule_compile_and_link <name> [<cppflags>] [<libs>] [<ldflags>] [<append>]
 _fc_cc_mkrule_compile_and_link() {
 	printf "%s: %s.c\n" "${1}" "${1}"
-	_fc_cc_mkcall_link '$<' "${2}" "${3}" "${4}"
+	_fc_cc_mkcall_link '$<' "${2}" "${3}" "${4}" "${5}"
 }
 
 # Synopsis: fc_cc_try_link <name> <includes> <code> [<cppflags>] [<libs>] [<ldflags>]
@@ -93,7 +94,8 @@ _fc_cc_mkrule_compile_and_link() {
 # of <includes> and <code> see _fc_mkrule_code().
 fc_cc_try_link() {
 	_fc_cc_mkrule_code "check-${1}" "${2}" "${3}"
-	_fc_cc_mkrule_compile_and_link "check-${1}" "${4}" "${5}" "${6}"
+	_fc_cc_mkrule_compile_and_link "check-${1}" "${4}" "${5}" "${6}" \
+		"${FC_VERBOSE+>/dev/null 2>&1}"
 	echo
 
 	fc_array_append FC_TESTLIST "check-${1}"

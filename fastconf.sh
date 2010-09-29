@@ -53,6 +53,9 @@ fi
 
 unset FC_EXPORTED_FUNCTIONS FC_INHERITED
 
+FC_VERBOSE=0
+FC_KEEPTEMP=0
+
 # Synopsis: fc_exit [code]
 # Terminate the configure script cleanly.
 fc_exit() {
@@ -352,6 +355,9 @@ fc_setup_makefile() {
 	unset FC_TESTLIST FC_TESTLIST_SOURCES FC_OUTPUTLIST FC_TARGETLIST \
 		FC_INSTALL FC_INSTALL_PREREQS FC_SUBDIRS
 
+	[ ${FC_KEEPTEMP} -eq 1 ] && unset FC_KEEPTEMP || FC_KEEPTEMP=
+	[ ${FC_VERBOSE} -eq 1 ] && unset FC_VERBOSE || FC_VERBOSE=
+
 	cat > "${1}" <<_EOF_
 # generated automatically by ./configure
 # please modify ./configure${2+ ${2}} instead
@@ -381,7 +387,7 @@ _EOF_
 	if [ -n "${FC_CONFIG_H+1}" ]; then
 		cat >> "${1}" <<_EOF_
 	@+if [ -n "\$(FC_EXPORTED)" ]; then \$(MAKE) all; else ./configure --make=all; fi
-	@+\$(MAKE) confclean
+	@+\$(MAKE) confclean >/dev/null 2>&1
 _EOF_
 	fi
 
@@ -393,17 +399,17 @@ _EOF_
 config:
 	@rm -f ${FC_CONFIG_H}
 	@+\$(MAKE) ${FC_CONFIG_H}
-	@+\$(MAKE) confclean
+	@+\$(MAKE) confclean >/dev/null 2>&1
 
 ${FC_CONFIG_H}:
 	@echo "** MAKE CONFIG STARTING **" >&2
-	@+\$(MAKE) confclean
+	@+\$(MAKE) confclean >/dev/null 2>&1
 	-+\$(MAKE) -k ${FC_TESTLIST}
 	./configure --create-config=\$@
 	@echo "** MAKE CONFIG FINISHED **" >&2
 
 confclean:
-	@rm -f ${FC_TESTLIST} ${FC_TESTLIST_SOURCES}
+${FC_KEEPTEMP+	@rm -f ${FC_TESTLIST} ${FC_TESTLIST_SOURCES}}
 
 .PHONY: config confclean
 _EOF_

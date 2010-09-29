@@ -23,6 +23,12 @@ Synopsis:
 	./configure [options]
 
 Options and arguments:
+	--help			Print this help message
+	--version		Print program and fastconf version
+
+	--verbose		Enable verbose configure checks
+	--keep-temp		Don't remove tests after configuring
+
 	--build=PLATFORM
 	--host=PLATFORM
 	--target=PLATFORM
@@ -89,6 +95,18 @@ _fc_cmdline_parse() {
 			--version)
 				echo "${PACKAGE} configure script, using fastconf ${FC_API}"
 				fc_exit 0
+				;;
+			--verbose)
+				FC_VERBOSE=1
+				;;
+			--quiet)
+				FC_VERBOSE=0
+				;;
+			--keep-temp)
+				FC_KEEPTEMP=1
+				;;
+			--no-keep-temp)
+				FC_KEEPTEMP=0
 				;;
 			*)
 				if _fc_call_arg_parse "${@}"; then
