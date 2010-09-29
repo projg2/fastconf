@@ -8,8 +8,9 @@ fc_mod_check_init() {
 	fc_export_functions \
 		fc_mod_check_check_results
 
-	unset FC_CHECKED_FUNCS
-	fc_persist FC_CHECKED_FUNCS
+	set -- FC_CHECKED_FUNCS FC_CHECKED_LIBS
+	unset ${*}
+	fc_persist ${*}
 }
 
 # Synopsis: fc_check_def <name> <desc> <def> <comment>
@@ -31,6 +32,14 @@ fc_mod_check_check_results() {
 			"define if your system has ${1}() function"
 		shift
 	done
+
+	# fc_check_lib()
+	set -- ${FC_CHECKED_LIBS}
+	while [ ${#} -gt 0 ]; do
+		fc_check_def "cl-${1}" "-l${1}" "HAVE_LIB$(fc_uc "${1}")" \
+			"define if your system has lib${1}"
+		shift
+	done
 }
 
 # Synopsis: fc_check_funcs <func1> [...]
@@ -41,4 +50,12 @@ fc_check_funcs() {
 		fc_array_append FC_CHECKED_FUNCS "${1}"
 		shift
 	done
+}
+
+# Synopsis: fc_check_lib <basename> [<func>] [<ldflags>] [<other-libs>]
+fc_check_lib() {
+	fc_cc_try_link cl-"${1}" \
+		'' "${2:+${2}(); }return 0;" \
+		'' "-l${1}${4+ ${4}}" "${3}"
+	fc_array_append FC_CHECKED_LIBS "${1}"
 }
