@@ -404,7 +404,7 @@ config:
 ${FC_CONFIG_H}:
 	@echo "** MAKE CONFIG STARTING **" >&2
 	@+\$(MAKE) confclean >/dev/null 2>&1
-	-+\$(MAKE) -k ${FC_TESTLIST}
+${FC_TESTLIST+	-+\$(MAKE) -k ${FC_TESTLIST}}
 	./configure --create-config=\$@
 	@echo "** MAKE CONFIG FINISHED **" >&2
 
