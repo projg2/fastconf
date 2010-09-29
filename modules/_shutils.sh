@@ -17,6 +17,14 @@ _fc_local_test() {
 
 _fc_local_test || eval 'local() { :; }'
 
+# string manip
+
+# Synopsis: fc_uc <str>
+# Output uppercase version of <str>.
+fc_uc() {
+	echo "${1}" | tr 'a-z' 'A-Z'
+}
+
 # arrays
 
 # Synopsis: fc_array_has <needle> <elem1> [...]

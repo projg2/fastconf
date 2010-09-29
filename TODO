@@ -22,6 +22,11 @@ General TODO
 
 1. Support i18n suffixes in `fc_install_man()`.
 
+`check` module TODO
+-------------------
+
+1. Support using C++ compiler instead of the C one.
+
 
 QA TODO
 -------
@@ -35,10 +40,7 @@ QA TODO
 Additional modules
 ------------------
 
-1. `cxx` -- C++ counterparts of `cc` module functions,
-2. `simple-checks` -- autoconf-like, universal, simple checks
-	for interface existence being able to use either `cc` or `cxx`
-	as the compiler backend.
+1. `cxx` -- C++ counterparts of `cc` module functions.
 
 <!--
 	(c) 2010 Michał Górny
