@@ -29,7 +29,7 @@ fc_mod_check_check_results() {
 	# fc_check_funcs()
 	set -- ${FC_CHECKED_FUNCS}
 	while [ ${#} -gt 0 ]; do
-		fc_check_def "cf-${1}" "${1}()" "HAVE_$(fc_uc "${1}")" \
+		fc_check_def "cf-${1}" "${1}()" "HAVE_$(fc_macro_clean "${1}")" \
 			"define if your system has ${1}() function"
 		shift
 	done
@@ -37,7 +37,7 @@ fc_mod_check_check_results() {
 	# fc_check_lib()
 	set -- ${FC_CHECKED_LIBS}
 	while [ ${#} -gt 0 ]; do
-		fc_check_def "cl-${1}" "-l${1}" "HAVE_LIB$(fc_uc "${1}")" \
+		fc_check_def "cl-${1}" "-l${1}" "HAVE_LIB$(fc_macro_clean "${1}")" \
 			"define if your system has lib${1}"
 
 		if fc_array_has "${1}" ${FC_USED_LIBS} && fc_check "cl-${1}"; then
@@ -49,7 +49,7 @@ fc_mod_check_check_results() {
 	# fc_check_pkg_config_lib()
 	set -- ${FC_CHECKED_PACKAGES}
 	while [ ${#} -gt 0 ]; do
-		fc_check_def "cp-${1}" "${1}" "HAVE_$(fc_uc "${1}")" \
+		fc_check_def "cp-${1}" "${1}" "HAVE_$(fc_macro_clean "${1}")" \
 			"define if your system has ${1}"
 		shift
 	done

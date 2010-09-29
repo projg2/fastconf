@@ -22,7 +22,13 @@ _fc_local_test || eval 'local() { :; }'
 # Synopsis: fc_uc <str>
 # Output uppercase version of <str>.
 fc_uc() {
-	echo "${1}" | tr '[:lower:]' '[:upper:]'
+	printf '%s' "${1}" | tr '[:lower:]' '[:upper:]'
+}
+
+# Synopsis: fc_macro_clean <str>
+# Output 'macro-clean' version of <str> (uppercase, no special chars).
+fc_macro_clean() {
+	printf '%s' "$(fc_uc "${1}")" | tr -C '[:alnum:]' '_'
 }
 
 # arrays
