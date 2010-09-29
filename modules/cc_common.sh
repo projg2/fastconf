@@ -14,6 +14,7 @@ fc_mod_cc_common_help() {
 	cat <<_EOF_
 	CPPFLAGS='<flag> ...'	C/C++ preprocessor flags (-I..., -D...)
 	LDFLAGS='<flag> ...'	C/C++ linking flags (-L..., -Wl,...)
+	LIBS='<flag> ...'	C/C++ libs to link with (-l...)
 
 _EOF_
 }
@@ -25,6 +26,7 @@ fc_mod_cc_common_cmdline_parsed() {
 fc_mod_cc_common_get_targets() {
 	fc_export CPPFLAGS "${CPPFLAGS}"
 	fc_export LDFLAGS "${LDFLAGS}"
+	fc_export LIBS "${LIBS}"
 }
 
 # Synopsis: fc_pkg_config [...]
