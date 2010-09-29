@@ -7,7 +7,8 @@ fc_mod_cc_common_init() {
 	fc_export_functions \
 		fc_mod_cc_common_help \
 		fc_mod_cc_common_cmdline_parsed \
-		fc_mod_cc_common_get_targets
+		fc_mod_cc_common_get_targets \
+		fc_mod_cc_common_get_exports
 }
 
 fc_mod_cc_common_help() {
@@ -27,6 +28,12 @@ fc_mod_cc_common_get_targets() {
 	fc_export CPPFLAGS "${CPPFLAGS}"
 	fc_export LDFLAGS "${LDFLAGS}"
 	fc_export LIBS "${LIBS}"
+}
+
+fc_mod_cc_common_get_exports() {
+	fc_export CONF_CPPFLAGS "${CONF_CPPFLAGS}"
+	fc_export CONF_LDFLAGS "${CONF_LDFLAGS}"
+	fc_export CONF_LIBS "${CONF_LIBS}"
 }
 
 # Synopsis: fc_pkg_config [...]

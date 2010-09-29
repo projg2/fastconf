@@ -77,9 +77,9 @@ _fc_cc_mkcall_compile() {
 # Synopsis: _fc_mkcall_link <infiles> [<cppflags>] [<libs>] [<ldflags>] [<append>]
 _fc_cc_mkcall_link() {
 	printf '\t%s %s %s %s %s %s %s %s\n' \
-		'$(CC) $(CFLAGS) $(CPPFLAGS)' "${2}" "${4}" \
-		'$(LDFLAGS) -o $@' "${1}" \
-		'$(LIBS)' "${3}" "${5}"
+		'$(CC) $(CFLAGS) $(CONF_CPPFLAGS) $(CPPFLAGS)' "${2}" "${4}" \
+		'$(CONF_LDFLAGS) $(LDFLAGS) -o $@' "${1}" \
+		'$(CONF_LIBS) $(LIBS)' "${3}" "${5}"
 }
 
 # Synopsis: _fc_mkrule_compile_and_link <name> [<cppflags>] [<libs>] [<ldflags>] [<append>]
