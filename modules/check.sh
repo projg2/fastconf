@@ -9,7 +9,7 @@ fc_mod_check_init() {
 		fc_mod_check_check_results
 
 	set -- FC_CHECKED_FUNCS FC_CHECKED_LIBS FC_USED_LIBS \
-		FC_CHECKED_PACKAGES
+		FC_CHECKED_PACKAGES FC_USED_PACKAGES
 	unset ${*}
 	fc_persist ${*}
 }
@@ -51,6 +51,23 @@ fc_mod_check_check_results() {
 	while [ ${#} -gt 0 ]; do
 		fc_check_def "cp-${1}" "${1}" "HAVE_$(fc_macro_clean "${1}")" \
 			"define if your system has ${1}"
+		shift
+	done
+
+	# fc_use_pkg_config_lib()
+	local pmacro plibs pldflags pcppflags
+	set -- ${FC_USED_PACKAGES}
+	while [ ${#} -gt 0 ]; do
+		if fc_check "cp-${1}"; then
+			pmacro=$(fc_macro_clean "${1}")
+			eval "plibs=\${${pmacro}_LIBS}
+				pldflags=\${${pmacro}_LDFLAGS}
+				pcppflags=\${${pmacro}_CPPFLAGS}"
+
+			fc_array_append CONF_LIBS "${plibs}"
+			fc_array_append CONF_LDFLAGS "${pldflags}"
+			fc_array_append CONF_CPPFLAGS "${pcppflags}"
+		fi
 		shift
 	done
 }
@@ -126,4 +143,41 @@ fc_check_pkg_config_lib() {
 	fc_cc_try_link cp-"${1}" \
 		'' "${2:+${2}(); }return 0;" \
 		'' "${plibs}" "${pldflags}"
+}
+
+# Synopsis: fc_use_pkg_config_lib <package> [<func>] [<fallback-libs>] [<fallback-ldflags>] [<fallback-cppflags>]
+fc_use_pkg_config_lib() {
+	local plibs pldflags pcppflags pfound pmacro
+	# XXX: check for pkgconfig inherit
+	# XXX: clean up <package> for naming
+
+	pfound=1
+	if fc_pkg_config --exists "${1}"; then
+		plibs=$(fc_pkg_config --libs-only-l "${1}")
+		pldflags=$(fc_pkg_config --libs-only-L --libs-only-other "${1}")
+		pcppflags=$(fc_pkg_config --cflags "${1}")
+	elif [ -n "${3+1}" ]; then
+		plibs=${3}
+		pldflags=${4}
+		pcppflags=${5}
+	else
+		unset plibs pldflags pcppflags
+		pfound=0
+	fi
+
+	pmacro=$(fc_macro_clean "${1}")
+	eval "${pmacro}_LIBS=\${plibs}
+			${pmacro}_LDFLAGS=\${pldflags}
+			${pmacro}_CPPFLAGS=\${pcppflags}"
+	fc_persist ${pmacro}_LIBS ${pmacro}_LDFLAGS ${pmacro}_CPPFLAGS
+
+	# checked array to get defines, used to get macros
+	fc_array_append FC_CHECKED_PACKAGES "${1}"
+
+	if [ ${pfound} -eq 1 ]; then
+		fc_array_append FC_USED_PACKAGES "${1}"
+		fc_cc_try_link cp-"${1}" \
+			'' "${2:+${2}(); }return 0;" \
+			'' "${plibs}" "${pldflags}"
+	fi
 }
