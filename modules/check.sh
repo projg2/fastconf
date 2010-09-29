@@ -8,7 +8,8 @@ fc_mod_check_init() {
 	fc_export_functions \
 		fc_mod_check_check_results
 
-	set -- FC_CHECKED_FUNCS FC_CHECKED_LIBS FC_USED_LIBS
+	set -- FC_CHECKED_FUNCS FC_CHECKED_LIBS FC_USED_LIBS \
+		FC_CHECKED_PACKAGES
 	unset ${*}
 	fc_persist ${*}
 }
@@ -42,6 +43,14 @@ fc_mod_check_check_results() {
 		if fc_array_has "${1}" ${FC_USED_LIBS} && fc_check "cl-${1}"; then
 			fc_array_append CONF_LIBS "-l${1}"
 		fi
+		shift
+	done
+
+	# fc_check_pkg_config_lib()
+	set -- ${FC_CHECKED_PACKAGES}
+	while [ ${#} -gt 0 ]; do
+		fc_check_def "cp-${1}" "${1}" "HAVE_$(fc_uc "${1}")" \
+			"define if your system has ${1}"
 		shift
 	done
 }
@@ -85,4 +94,36 @@ fc_check_lib() {
 fc_use_lib() {
 	fc_check_lib "${@}"
 	fc_array_append FC_USED_LIBS "${1}"
+}
+
+# Synopsis: fc_check_pkg_config_lib <package> [<func>] [<fallback-libs>] [<fallback-ldflags>]
+# CHeck for existence of library(-ies) referenced by pkg-config package
+# <package>, and afterwards declare HAVE_<package> (where <package> is
+# transformed uppercase). <func> works like in fc_check_lib().
+#
+# If <fallback-libs> are provided, they will be used along with
+# <fallback-ldflags> if pkg-config is unable to find the package.
+# Otherwise, the function will behave as if the package was
+# not available.
+fc_check_pkg_config_lib() {
+	local plibs pldflags
+	# XXX: check for pkgconfig inherit
+	# XXX: clean up <package> for naming
+
+	# always append it so we always get at least undef
+	fc_array_append FC_CHECKED_PACKAGES "${1}"
+
+	if fc_pkg_config --exists "${1}"; then
+		plibs=$(fc_pkg_config --libs-only-l "${1}")
+		pldflags=$(fc_pkg_config --libs-only-L --libs-only-other "${1}")
+	elif [ -n "${3+1}" ]; then
+		plibs=${3}
+		pldflags=${4}
+	else
+		return 1
+	fi
+
+	fc_cc_try_link cp-"${1}" \
+		'' "${2:+${2}(); }return 0;" \
+		'' "${plibs}" "${pldflags}"
 }
