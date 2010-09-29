@@ -48,3 +48,15 @@ fc_pkg_config() {
 
 	"${PKG_CONFIG}" "${@}"
 }
+
+# Synopsis: fc_use_pkg_config <package>
+# Query pkg-config about package <package> and append the obtained
+# information to CONF_{{CPP,LD}FLAGS,LIBS}. Return true if pkg-config
+# call succeded, false otherwise.
+fc_use_pkg_config() {
+	if fc_pkg_config --exists "${1}"; then
+		fc_array_append CONF_CPPFLAGS "$(fc_pkg_config --cflags "${1}")"
+		fc_array_append CONF_LDFLAGS "$(fc_pkg_config --libs-only-L --libs-only-other "${1}")"
+		fc_array_append CONF_LIBS "$(fc_pkg_config --libs-only-l "${1}")"
+	fi
+}
