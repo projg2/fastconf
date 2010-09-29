@@ -8,7 +8,7 @@ fc_mod_check_init() {
 	fc_export_functions \
 		fc_mod_check_check_results
 
-	set -- FC_CHECKED_FUNCS FC_CHECKED_LIBS
+	set -- FC_CHECKED_FUNCS FC_CHECKED_LIBS FC_USED_LIBS
 	unset ${*}
 	fc_persist ${*}
 }
@@ -38,6 +38,10 @@ fc_mod_check_check_results() {
 	while [ ${#} -gt 0 ]; do
 		fc_check_def "cl-${1}" "-l${1}" "HAVE_LIB$(fc_uc "${1}")" \
 			"define if your system has lib${1}"
+
+		if fc_array_has "${1}" ${FC_USED_LIBS} && fc_check "cl-${1}"; then
+			fc_array_append CONF_LIBS "-l${1}"
+		fi
 		shift
 	done
 }
@@ -58,4 +62,10 @@ fc_check_lib() {
 		'' "${2:+${2}(); }return 0;" \
 		'' "-l${1}${4+ ${4}}" "${3}"
 	fc_array_append FC_CHECKED_LIBS "${1}"
+}
+
+# Synopsis: fc_use_lib <basename> [<func>] [<ldflags>] [<other-libs>]
+fc_use_lib() {
+	fc_check_lib "${@}"
+	fc_array_append FC_USED_LIBS "${1}"
 }
