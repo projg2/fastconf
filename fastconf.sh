@@ -272,6 +272,12 @@ fc_check() {
 # them into <config-file>. Afterwards, call conf_get_exports() to get
 # the necessary make macros and append them to Makefile.
 _fc_create_config() {
+	if [ -r configure.env ]; then
+		. ./configure.env
+	else
+		echo "WARNING: configure.env not readable, consider re-running ./configure" >&2
+	fi
+
 	_fc_call_exports check_results > "${1}"
 	fc_export FC_EXPORTED 1 >> Makefile
 	_fc_call_exports get_exports >> Makefile
@@ -284,6 +290,14 @@ _fc_create_config() {
 # conf_get_targets() and conf_get_exports().
 fc_export() {
 	echo "${1}=${2}"
+}
+
+# Synopsis: fc_persist <name> [...]
+# Make the passed variables persistent between first ./configure
+# invocation and --create-config one. This is done through exporting
+# them and writing to configure.env afterwards.
+fc_persist() {
+	export "${@}"
 }
 
 # Synopsis: fc_set_target <target> <prereqs>
@@ -414,6 +428,9 @@ ${FC_INSTALL+install: default${FC_INSTALL}}
 ${FC_INSTALL+$(_fc_setup_subdir_rules install)}
 _EOF_
 	rm -f ${FC_CONFIG_H}
+
+	# Save the exports.
+	export -p > configure.env
 }
 
 # INITIALIZATION RULES
