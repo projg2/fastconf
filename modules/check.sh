@@ -46,7 +46,10 @@ fc_mod_check_check_results() {
 	done
 }
 
-# Synopsis: fc_check_funcs <func1> [...]
+# Synopsis: fc_check_funcs <func> [...]
+# Check for existence of passed functions. When the checks are done,
+# HAVE_<func> macros will be defined in the header file, with <func>
+# being the name of particular function transformed uppercase.
 fc_check_funcs() {
 	while [ ${#} -gt 0 ]; do
 		fc_cc_try_link cf-"${1}" \
@@ -57,6 +60,17 @@ fc_check_funcs() {
 }
 
 # Synopsis: fc_check_lib <basename> [<func>] [<ldflags>] [<other-libs>]
+# Check for existence of passed library <basename> (without '-l'
+# prefix), by trying to link with the library and find to function
+# <func> afterwards. If <func> is not specified or empty (which is not
+# recommended), no function check will be performed.
+#
+# The <ldflags> specify additional linker flags for the test and
+# <other-libs> may provide an additional dependant library list
+# (containing '-l' prefixes).
+#
+# When the check is done, HAVE_LIB<basename> (with <basename> being
+# transformed uppercase) will be defined.
 fc_check_lib() {
 	fc_cc_try_link cl-"${1}" \
 		'' "${2:+${2}(); }return 0;" \
@@ -65,6 +79,9 @@ fc_check_lib() {
 }
 
 # Synopsis: fc_use_lib <basename> [<func>] [<ldflags>] [<other-libs>]
+# Check for existence of passed library <basename> and append it to
+# CONF_LIBS if available. For description of arguments and declared
+# macro details, see fc_check_lib().
 fc_use_lib() {
 	fc_check_lib "${@}"
 	fc_array_append FC_USED_LIBS "${1}"
