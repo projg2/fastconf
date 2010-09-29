@@ -22,7 +22,7 @@ _fc_local_test || eval 'local() { :; }'
 # Synopsis: fc_uc <str>
 # Output uppercase version of <str>.
 fc_uc() {
-	echo "${1}" | tr 'a-z' 'A-Z'
+	echo "${1}" | tr '[:lower:]' '[:upper:]'
 }
 
 # arrays
