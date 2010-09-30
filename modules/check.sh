@@ -79,7 +79,7 @@ fc_mod_check_check_results() {
 fc_check_funcs() {
 	while [ ${#} -gt 0 ]; do
 		fc_cc_try_link cf-"${1}" \
-			'' "${1}(); return 0;"
+			"char ${1}();" "return ${1}();"
 		fc_array_append FC_CHECKED_FUNCS "${1}"
 		shift
 	done
