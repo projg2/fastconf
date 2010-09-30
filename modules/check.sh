@@ -172,6 +172,13 @@ fc_check_pkg_config_lib() {
 }
 
 # Synopsis: fc_use_pkg_config_lib <package> [<func>] [<fallback-libs>] [<fallback-ldflags>] [<fallback-cppflags>]
+# Check for existence of library(-ies) referenced by pkg-config package
+# <package>, declaring HAVE_<package> (where <package> is transformed
+# uppercase) and appending necessary flags to CONF_{{CPP,LD}FLAGS,LIBS}
+# if the check succeds.
+#
+# <func> and <fallback-*> arguments work the same
+# as in fc_check_pkg_config_lib().
 fc_use_pkg_config_lib() {
 	local plibs pldflags pcppflags pfound pmacro
 	# XXX: check for pkgconfig inherit
