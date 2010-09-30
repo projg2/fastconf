@@ -1,0 +1,20 @@
+#!/bin/sh
+
+PN=strings-test
+PV=0.0.1
+FC_API_WANT=0
+FC_CONFIG_H=config.h
+
+conf_init() {
+	fc_inherit cc check
+	fc_export_functions conf_get_targets
+}
+
+conf_get_targets() {
+	fc_check_funcs strncpy strncat strdup strlcat strlcpy
+	fc_cc_link test test.c
+	fc_array_append FC_INSTALL_PREREQS test
+}
+
+FC_MODULE_PATH=../../modules
+. ../../fastconf.sh
