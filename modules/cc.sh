@@ -67,11 +67,11 @@ _fc_cc_mkrule_code() {
 		"${1}" '\nint main(int argc, char *argv[])' '\n' "${2}" "${3}"
 }
 
-# Synopsis: _fc_mkcall_compile <infiles> [<cppflags>]
+# Synopsis: _fc_mkcall_compile <infiles> [<cppflags>] [<append>]
 _fc_cc_mkcall_compile() {
-	printf '\t%s %s %s %s\n' \
+	printf '\t%s %s %s %s %s\n' \
 		'$(CC) -c $(CFLAGS) $(CONF_CPPFLAGS) $(CPPFLAGS)' "${2}" \
-		'-o $@' "${1}"
+		'-o $@' "${1}" "${3}"
 }
 
 # Synopsis: _fc_mkcall_link <infiles> [<cppflags>] [<libs>] [<ldflags>] [<append>]
@@ -82,10 +82,22 @@ _fc_cc_mkcall_link() {
 		'$(CONF_LIBS) $(LIBS)' "${3}" "${5}"
 }
 
-# Synopsis: _fc_mkrule_compile_and_link <name> [<cppflags>] [<libs>] [<ldflags>] [<append>]
-_fc_cc_mkrule_compile_and_link() {
-	printf "%s: %s.c\n" "${1}" "${1}"
-	_fc_cc_mkcall_link '$<' "${2}" "${3}" "${4}" "${5}"
+# Synopsis: fc_cc_try_compile <name> <includes> <code> [<cppflags>]
+# Output a Makefile rule trying to compile a test program <name>
+# (without linking it), passing <cppflags> to the compiler.
+# For the description of <includes> and <code> see _fc_mkrule_code().
+fc_cc_try_compile() {
+	local fn
+	fn=check-${1}
+
+	_fc_cc_mkrule_code "${fn}" "${2}" "${3}"
+	echo "${fn}.o: ${fn}.c"
+	_fc_cc_mkcall_compile '$<' "${4}" \
+		"${FC_VERBOSE+>/dev/null 2>&1}"
+	echo
+
+	fc_array_append FC_TESTLIST "${fn}.o"
+	fc_array_append FC_TESTLIST_SOURCES "${fn}.c"
 }
 
 # Synopsis: fc_cc_try_link <name> <includes> <code> [<cppflags>] [<libs>] [<ldflags>]
@@ -93,13 +105,17 @@ _fc_cc_mkrule_compile_and_link() {
 # <cppflags>, <ldflags> and <libs> to the compiler. For the description
 # of <includes> and <code> see _fc_mkrule_code().
 fc_cc_try_link() {
-	_fc_cc_mkrule_code "check-${1}" "${2}" "${3}"
-	_fc_cc_mkrule_compile_and_link "check-${1}" "${4}" "${5}" "${6}" \
+	local fn
+	fn=check-${1}
+
+	_fc_cc_mkrule_code "${fn}" "${2}" "${3}"
+	echo "${fn}: ${fn}.c"
+	_fc_cc_mkcall_link '$<' "${4}" "${5}" "${6}" \
 		"${FC_VERBOSE+>/dev/null 2>&1}"
 	echo
 
-	fc_array_append FC_TESTLIST "check-${1}"
-	fc_array_append FC_TESTLIST_SOURCES "check-${1}.c"
+	fc_array_append FC_TESTLIST "${fn}"
+	fc_array_append FC_TESTLIST_SOURCES "${fn}.c"
 }
 
 # Synopsis: fc_cc_compile <src> [<cppflags>]
