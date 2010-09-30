@@ -70,7 +70,7 @@ _fc_cc_mkrule_code() {
 # Synopsis: _fc_mkcall_compile <infiles> [<cppflags>]
 _fc_cc_mkcall_compile() {
 	printf '\t%s %s %s %s\n' \
-		'$(CC) -c $(CFLAGS) $(CPPFLAGS)' "${2}" \
+		'$(CC) -c $(CFLAGS) $(CONF_CPPFLAGS) $(CPPFLAGS)' "${2}" \
 		'-o $@' "${1}"
 }
 
