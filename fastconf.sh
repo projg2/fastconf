@@ -408,7 +408,7 @@ ${FC_OUTPUTLIST+	rm -f ${FC_OUTPUTLIST}}
 $(_fc_setup_subdir_rules clean)
 
 distclean: clean ${FC_CONFIG_H+confclean}
-	rm -f Makefile ${FC_CONFIG_H}
+	rm -f Makefile configure.env ${FC_CONFIG_H}
 $(_fc_setup_subdir_rules distclean)
 
 .PHONY: all clean default distclean ${FC_INSTALL+install} ${FC_TARGETLIST} 
