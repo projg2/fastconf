@@ -367,25 +367,6 @@ fc_setup_makefile() {
 # generated automatically by ./configure
 # please modify ./configure${2+ ${2}} instead
 
-DESTDIR =
-
-PREFIX = ${PREFIX}
-EXEC_PREFIX = ${EXEC_PREFIX}
-
-BINDIR = ${BINDIR}
-SBINDIR = ${SBINDIR}
-LIBEXECDIR = ${LIBEXECDIR}
-SYSCONFDIR = ${SYSCONFDIR}
-LOCALSTATEDIR = ${LOCALSTATEDIR}
-LIBDIR = ${LIBDIR}
-INCLUDEDIR = ${INCLUDEDIR}
-DATAROOTDIR = ${DATAROOTDIR}
-DATADIR = ${DATADIR}
-LOCALEDIR = ${LOCALEDIR}
-MANDIR = ${MANDIR}
-DOCDIR = ${DOCDIR}
-HTMLDIR = ${HTMLDIR}
-
 default: ${FC_CONFIG_H-all}
 _EOF_
 

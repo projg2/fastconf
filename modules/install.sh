@@ -11,7 +11,8 @@ fc_mod_install_init() {
 	fc_export_functions \
 		fc_mod_install_help \
 		fc_mod_install_arg_parse \
-		fc_mod_install_cmdline_parsed
+		fc_mod_install_cmdline_parsed \
+		fc_mod_install_get_targets
 
 	unset PREFIX EXEC_PREFIX \
 		BINDIR SBINDIR LIBEXECDIR SYSCONFDIR \
@@ -118,6 +119,7 @@ fc_mod_install_arg_parse() {
 }
 
 fc_mod_install_cmdline_parsed() {
+	
 	: ${PREFIX=/usr/local}
 	: ${EXEC_PREFIX=\$(PREFIX)}
 
@@ -135,6 +137,29 @@ fc_mod_install_cmdline_parsed() {
 	: ${INFODIR=\$(DATAROOTDIR)/info}
 	: ${DOCDIR=\$(DATAROOTDIR)/doc/${PACKAGE}}
 	: ${HTMLDIR=\$(DOCDIR)}
+}
+
+fc_mod_install_get_targets() {
+	cat <<_EOF_
+DESTDIR =
+
+PREFIX = ${PREFIX}
+EXEC_PREFIX = ${EXEC_PREFIX}
+
+BINDIR = ${BINDIR}
+SBINDIR = ${SBINDIR}
+LIBEXECDIR = ${LIBEXECDIR}
+SYSCONFDIR = ${SYSCONFDIR}
+LOCALSTATEDIR = ${LOCALSTATEDIR}
+LIBDIR = ${LIBDIR}
+INCLUDEDIR = ${INCLUDEDIR}
+DATAROOTDIR = ${DATAROOTDIR}
+DATADIR = ${DATADIR}
+LOCALEDIR = ${LOCALEDIR}
+MANDIR = ${MANDIR}
+DOCDIR = ${DOCDIR}
+HTMLDIR = ${HTMLDIR}
+_EOF_
 }
 
 # Synopsis: fc_install_dir [-m <mode>] [--] <dir>
