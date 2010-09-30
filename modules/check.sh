@@ -9,7 +9,7 @@ fc_mod_check_init() {
 		fc_mod_check_check_results
 
 	set -- FC_CHECKED_FUNCS FC_CHECKED_LIBS FC_USED_LIBS \
-		FC_CHECKED_PACKAGES FC_USED_PACKAGES
+		FC_CHECKED_HEADERS FC_CHECKED_PACKAGES FC_USED_PACKAGES
 	unset ${*}
 	fc_persist ${*}
 }
@@ -43,6 +43,14 @@ fc_mod_check_check_results() {
 		if fc_array_has "${1}" ${FC_USED_LIBS} && fc_check "cl-${1}"; then
 			fc_array_append CONF_LIBS "-l${1}"
 		fi
+		shift
+	done
+
+	# fc_check_headers()
+	set -- ${FC_CHECKED_HEADERS}
+	while [ ${#} -gt 0 ]; do
+		fc_check_def "ch-${1}.o" "${1}" "HAVE_$(fc_macro_clean "${1}")" \
+			"define if your system has ${1}"
 		shift
 	done
 
@@ -111,6 +119,24 @@ fc_check_lib() {
 fc_use_lib() {
 	fc_check_lib "${@}"
 	fc_array_append FC_USED_LIBS "${1}"
+}
+
+# Synopsis: fc_check_headers <files> [<cppflags>] [<includes>]
+# Check for existence of header files <files> (in the form
+# 'filename.h'). Declare HAVE_<header-file> (where <header-file> is made
+# 'macro-clean') if headers can be compiled against.
+#
+# <cppflags> specifies any additional compiler flags; <includes>
+# specifies additional preprocessor directives required before
+# the actual #include. <includes> is passed to 'printf %b', so it can
+# use C escape sequences.
+fc_check_headers() {
+	while [ ${#} -gt 0 ]; do
+		fc_cc_try_compile ch-"${1}" \
+			"${3+${3}\n}#include <${1}>" "return 0;"
+		fc_array_append FC_CHECKED_HEADERS "${1}"
+		shift
+	done
 }
 
 # Synopsis: fc_check_pkg_config_lib <package> [<func>] [<fallback-libs>] [<fallback-ldflags>]

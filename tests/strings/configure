@@ -11,6 +11,7 @@ conf_init() {
 }
 
 conf_get_targets() {
+	fc_check_headers string.h
 	fc_check_funcs strncpy strncat strdup strlcat strlcpy
 	fc_cc_link test test.c
 
