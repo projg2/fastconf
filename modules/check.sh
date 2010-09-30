@@ -49,8 +49,8 @@ fc_mod_check_check_results() {
 	# fc_check_headers()
 	set -- ${FC_CHECKED_HEADERS}
 	while [ ${#} -gt 0 ]; do
-		fc_check_def "ch-${1}.o" "${1}" "HAVE_$(fc_macro_clean "${1}")" \
-			"define if your system has ${1}"
+		fc_check_def "ch-${1}.o" "<${1}>" "HAVE_$(fc_macro_clean "${1}")" \
+			"define if your system has <${1}>"
 		shift
 	done
 
