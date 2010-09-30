@@ -51,6 +51,11 @@ fi
 # Set to the expected FC_API version.
 : ${FC_API_WANT}
 
+if [ -n "${FC_MAKEFILE_IN:+1}" ]; then
+	echo 'WARNING: FC_MAKEFILE_IN is deprecated, please append the necessary' >&2
+	echo 'rules (files) in conf_get_targets() instead.' >&2
+fi
+
 unset FC_EXPORTED_FUNCTIONS FC_INHERITED
 
 FC_VERBOSE=0
