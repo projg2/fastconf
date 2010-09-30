@@ -114,7 +114,7 @@ fc_use_lib() {
 }
 
 # Synopsis: fc_check_pkg_config_lib <package> [<func>] [<fallback-libs>] [<fallback-ldflags>]
-# CHeck for existence of library(-ies) referenced by pkg-config package
+# Check for existence of library(-ies) referenced by pkg-config package
 # <package>, and afterwards declare HAVE_<package> (where <package> is
 # transformed uppercase). <func> works like in fc_check_lib().
 #
