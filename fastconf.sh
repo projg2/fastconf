@@ -332,7 +332,7 @@ _fc_build() {
 	ifs_save=${IFS}
 	IFS='
 '
-	set -- "${1}" $(_fc_call_exports get_exports)
+	set -- confclean "${1}" $(_fc_call_exports get_exports)
 	IFS=${ifs_save}
 
 	echo make "${@}" >&2
@@ -372,8 +372,7 @@ _EOF_
 
 	if [ -n "${FC_CONFIG_H+1}" ]; then
 		cat >> "${1}" <<_EOF_
-	@+if [ -n "\$(FC_EXPORTED)" ]; then \$(MAKE) all; else ./configure --make=all; fi
-	@+\$(MAKE) confclean >/dev/null 2>&1
+	@+if [ -n "\$(FC_EXPORTED)" ]; then \$(MAKE) confclean all; else ./configure --make=all; fi
 _EOF_
 	fi
 
