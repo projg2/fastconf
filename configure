@@ -17,9 +17,9 @@ conf_get_targets() {
 
 	# Don't make it executable, it is not expected to be so
 	fc_install_as '$(BINDIR)' ${PN}.sh.out ${PN}.sh
-	fc_install -s '$(MODULEDIR)' modules/*.sh
+	fc_install '$(MODULEDIR)' modules/*.sh
 
-	fc_install -s '$(DOCDIR)' CODING-STYLE.md GUIDE README TODO
+	fc_install '$(DOCDIR)' CODING-STYLE.md GUIDE README TODO
 }
 
 . ./fastconf.sh

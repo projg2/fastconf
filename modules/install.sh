@@ -253,10 +253,6 @@ _fc_install_common() {
 				shift 2
 				: $(( i += 2 ))
 				;;
-			-s|--static)
-				shift
-				: $(( i += 1 ))
-				;;
 			--)
 				shift
 				: $(( i += 1 ))
@@ -274,19 +270,14 @@ _fc_install_common() {
 	return ${i}
 }
 
-# Synopsis: fc_install [-s] [-x|-m <mode>] [-d <mode>] [--] <dest> <files>
+# Synopsis: fc_install [-x|-m <mode>] [-d <mode>] [--] <dest> <files>
 # Install <files> in <dest>, creating the parent directories
-# and setting permissions as necessary.
-#
-# Options:
-# * -s, --static -- assume <files> are static rather than generated
-#	(and thus grab them from sourcedir rather than builddir),
-# * -x, --executable -- make the output files world-executable,
-# * -m <mode, --mode <mode> -- set the output file permissions
-#	to <mode> (which is either octal or symbolic mode suitable
-#	for passing to chmod),
-# * -d <mode>, --directory-mode <mode> -- set the permissions
-#	on the created parent directories to <mode>.
+# and setting permissions as necessary. If '-d <mode>' is passed,
+# that permissions will be given to newly-created directories.
+# For files, the following algorithm is used:
+#	1) if '-m <mode>' is passed, <mode> will be used,
+#	2) if '-x' is passed, files will be made world-executable,
+#	3) if none of the above is passed, files will be world-readable.
 fc_install() {
 	local dest mode i
 	_fc_install_common "${@}" || shift ${?}
