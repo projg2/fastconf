@@ -28,7 +28,7 @@ fc_uc() {
 # Synopsis: fc_macro_clean <str>
 # Output 'macro-clean' version of <str> (uppercase, no special chars).
 fc_macro_clean() {
-	printf '%s' "$(fc_uc "${1}")" | tr -C '[:alnum:]' '_'
+	printf '%s' "$(fc_uc "${1}")" | tr -s -C '[:alnum:]' '_'
 }
 
 # arrays
