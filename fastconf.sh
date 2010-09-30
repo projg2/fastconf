@@ -23,7 +23,7 @@ FC_API_MIN=0
 # and version respectively before sourcing fastconf.sh, e.g.:
 #	PN=foobar
 #	PV=0.0.1
-#	. ./fastconf.sh
+#	. fastconf.sh
 
 if [ -z "${PN}" -o -z "${PV}" ]; then
 	echo 'IMPORTANT: Please set ${PN} and ${PV} in the configure script!' >&2
@@ -135,9 +135,9 @@ _fc_inherit() {
 			fc_exit 2
 		fi
 
-		fc_array_append FC_INHERITED "${fn}"
+		fc_array_append FC_INHERITED "${1}"
 	else
-		echo "FATAL ERROR: unable to load module ${fn} as requested by ./configure." >&2
+		echo "FATAL ERROR: unable to load module ${1} as requested by ./configure." >&2
 		fc_exit 2
 	fi
 }
