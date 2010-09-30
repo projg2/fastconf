@@ -6,14 +6,16 @@ FC_API_WANT=0
 FC_CONFIG_H=config.h
 
 conf_init() {
-	fc_inherit cc check
+	fc_inherit cc check install
 	fc_export_functions conf_get_targets
 }
 
 conf_get_targets() {
 	fc_check_funcs strncpy strncat strdup strlcat strlcpy
 	fc_cc_link test test.c
-	fc_array_append FC_INSTALL_PREREQS test
+
+	# append /tmp just to make sure we don't junk in the system
+	fc_install -x '/tmp/$(BINDIR)' test
 }
 
 FC_MODULE_PATH=../../modules
