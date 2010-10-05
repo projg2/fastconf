@@ -22,7 +22,7 @@ fc_sed() {
 		shift
 	done
 
-	printf '%s: %s\n\tsed %s $< > $@' \
+	printf '%s: %s\n\tsed %s $< > $@\n' \
 		"${out}" "${in}" "${*}"
 
 	fc_array_append FC_OUTPUTLIST "${out}"
