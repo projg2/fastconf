@@ -162,13 +162,16 @@ HTMLDIR = ${HTMLDIR}
 _EOF_
 }
 
-# Synopsis: fc_install_dir [-m <mode>] [--] <dir>
+# Synopsis: fc_install_dir [-k] [-m <mode>] [--] <dir>
 # Setup creating <dir> along with parent directories, and setting their
 # permissions to <mode> (or ${FC_INSTALL_UMASK} if not specified).
+# If '-k' (or '--keep') option is specified, a dotfile will be installed
+# in order to prevent a possible removal of an empty directory.
 fc_install_dir() {
-	local dirumask ifs_save
+	local dirumask ifs_save keepdir
 
 	dirumask=${FC_INSTALL_UMASK}
+	keepdir=0
 	while [ ${#} -gt 0 ]; do
 		case "${1}" in
 			--mode=*)
@@ -182,6 +185,10 @@ fc_install_dir() {
 				fi
 				dirumask=${2}
 				shift 2
+				;;
+			-k|--keep)
+				keepdir=1
+				shift
 				;;
 			--)
 				shift
@@ -201,6 +208,10 @@ fc_install_dir() {
 	if ! fc_array_has "${1}" ${FC_INSTALLED_DIRS}; then
 		FC_INSTALL="${FC_INSTALL}
 	umask ${dirumask}; mkdir -p \"\$(DESTDIR)${1}\""
+		if [ ${keepdir} -eq 1 ]; then
+			FC_INSTALL="${FC_INSTALL}
+	umask ${FC_INSTALL_CHMOD}; touch \"\$(DESTDIR)${1}\"/.keep"
+		fi
 		fc_array_append FC_INSTALLED_DIRS "${1}"
 	fi
 
