@@ -12,11 +12,13 @@ conf_init() {
 conf_get_targets() {
 	fc_export MODULEDIR '$(DATADIR)'/${PN}
 
-	fc_sed ${PN}.sh ${PN}.sh.out \
+	fc_set_builddir build
+
+	fc_sed ${PN}.sh build/${PN}.sh \
 		'/FC_MODULE_PATH=/s:=.*}$$:=$(MODULEDIR)}:'
 
 	# Don't make it executable, it is not expected to be so
-	fc_install_as '$(BINDIR)' ${PN}.sh.out ${PN}.sh
+	fc_install '$(BINDIR)' build/${PN}.sh
 	fc_install '$(MODULEDIR)' modules/*.sh
 
 	fc_install '$(DOCDIR)' CODING-STYLE.md GUIDE README TODO

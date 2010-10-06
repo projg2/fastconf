@@ -22,8 +22,8 @@ fc_sed() {
 		shift
 	done
 
-	printf '%s: %s\n\tsed %s $< > $@\n' \
-		"${out}" "${in}" "${*}"
+	printf '%s: %s %s\n\tsed %s $< > $@\n' \
+		"${out}" "${in}" "${FC_BUILD_PREREQS}" "${*}"
 
 	fc_array_append FC_OUTPUTLIST "${out}"
 }

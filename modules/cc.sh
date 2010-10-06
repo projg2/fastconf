@@ -125,7 +125,7 @@ fc_cc_compile() {
 	local out
 	out=${1%.*}.o
 
-	echo "${out}: ${1}"
+	echo "${out}: ${1} ${FC_BUILD_PREREQS}"
 	_fc_cc_mkcall_compile '$<' "${2}"
 	echo
 
@@ -137,7 +137,7 @@ fc_cc_compile() {
 # object list (whitespace-delimitered), passing <cppflags>, <ldflags>
 # and <libs> to the compiler.
 fc_cc_link() {
-	echo "${1}: ${2}"
+	echo "${1}: ${2} ${FC_BUILD_PREREQS}"
 	_fc_cc_mkcall_link "${2}" "${3}" "${4}" "${5}"
 	echo
 
@@ -154,7 +154,7 @@ fc_cc_build() {
 
 	for f in ${2}; do
 		fc_cc_compile ${f} "${3}"
-		outf=${outf+${outf} }${f%.*}.o
+		fc_array_append outf "${f%.*}.o"
 	done
 	fc_cc_link "${1}" "${outf}" "${3}" "${4}" "${5}"
 }

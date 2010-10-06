@@ -308,6 +308,16 @@ fc_persist() {
 	export "${@}"
 }
 
+# Synopsis: fc_set_builddir <dir>
+# Output a make rule creating a builddir, and append it to the common
+# build prerequisities list.
+fc_set_builddir() {
+	printf '%s:\n\tmkdir $@\n' "${1}"
+
+	fc_array_append FC_BUILD_PREREQS "${1}"
+	fc_array_append FC_OUTPUTDIRS "${1}"
+}
+
 # Synopsis: fc_set_target <target> <prereqs>
 # Output a simple make target <target>, setting its prerequisities to
 # <prereqs>.
@@ -358,7 +368,8 @@ _fc_setup_subdir_rules() {
 # afterwards (if supplied).
 fc_setup_makefile() {
 	unset FC_TESTLIST FC_TESTLIST_SOURCES FC_OUTPUTLIST FC_TARGETLIST \
-		FC_INSTALL FC_INSTALL_PREREQS FC_SUBDIRS
+		FC_OUTPUTDIRS FC_BUILD_PREREQS FC_INSTALL FC_INSTALL_PREREQS \
+		FC_SUBDIRS
 
 	[ ${FC_KEEPTEMP} -eq 1 ] && unset FC_KEEPTEMP || FC_KEEPTEMP=
 	[ ${FC_VERBOSE} -eq 1 ] && unset FC_VERBOSE || FC_VERBOSE=
@@ -404,6 +415,7 @@ _EOF_
 
 clean:
 ${FC_OUTPUTLIST+	rm -f ${FC_OUTPUTLIST}}
+${FC_OUTPUTDIRS+	-rmdir ${FC_OUTPUTDIRS} 2>/dev/null}
 $(_fc_setup_subdir_rules clean)
 
 distclean: clean ${FC_CONFIG_H+confclean}
