@@ -11,12 +11,14 @@ conf_init() {
 }
 
 conf_get_targets() {
+	fc_set_builddir build
+
 	fc_check_headers string.h
 	fc_check_funcs strncpy strncat strdup strlcat strlcpy
-	fc_cc_link test test.c
+	fc_cc_link build/test test.c
 
 	# append /tmp just to make sure we don't junk in the system
-	fc_install -x '/tmp/$(BINDIR)' test
+	fc_install -x '/tmp/$(BINDIR)' build/test
 }
 
 FC_MODULE_PATH=../../modules
