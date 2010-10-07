@@ -316,12 +316,13 @@ fc_install() {
 # Install <src> to <dest>, renaming it to <newname>. For option
 # descriptions, please look at fc_install().
 fc_install_as() {
-	local mode
+	local mode dest
 	_fc_install_common "${@}" || shift ${?}
 
+	dest="\$(DESTDIR)${1}/${3}"
 	FC_INSTALL="${FC_INSTALL}
-	cp \"${2}\" \"\$(DESTDIR)${1}/${3}\"
-	cd \"\$(DESTDIR)${1}\" && chmod ${mode} \"${3}\""
+	cp \"${2}\" \"${dest}\"
+	chmod ${mode} \"${dest}\""
 
 	fc_array_append FC_INSTALL_PREREQS "${2}"
 }
