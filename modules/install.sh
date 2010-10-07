@@ -326,6 +326,35 @@ fc_install_as() {
 	fc_array_append FC_INSTALL_PREREQS "${2}"
 }
 
+# Synopsis: fc_install_conf [-m <mode>] [-d <mode>] [--] <dest> <src> [<newname>] [<distname>]
+# Install config file <src> to <dest>. If <newname> is specified,
+# the file will be installed under the new name.
+#
+# If the file with the same exists in <dest> already, it won't be
+# replaced. If it doesn't differ from the one being installed, nothing
+# will happen. If it does, the new file will be installed as <distname>
+# instead. If <distname> is not specified, <newname> (or <src>) with
+# '.dist' suffix appended will be used.
+fc_install_conf() {
+	local mode dest distdest
+	_fc_install_common "${@}" || shift ${?}
+
+	dest="\$(DESTDIR)${1}/${3-${2}}"
+	distdest="\$(DESTDIR)${1}/${4-${3-${2}}.dist}"
+
+	FC_INSTALL="${FC_INSTALL}
+	if ! [ -f \"${dest}\" ]; then \
+		cp \"${2}\" \"${dest}\" && \
+		chmod ${mode} \"${dest}\"; \
+	elif ! cmp \"${2}\" \"${dest}\" >/dev/null 2>&1; then \
+		echo \"* Installing ${2} as ${distdest} to avoid overwriting.\" >&2; \
+		cp \"${2}\" \"${distdest}\" && \
+		chmod ${mode} \"${distdest}\"; \
+	else \
+		:; \
+	fi"
+}
+
 # Synopsis: fc_install_man <files> [...]
 # Setup installing manpages <files> into appropriate subdirectories
 # of $(MANDIR) based on their basenames.
